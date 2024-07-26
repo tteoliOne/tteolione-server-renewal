@@ -1,0 +1,11 @@
+[[auth-signup]]
+=== 회원가입 API
+
+==== HTTP Request
+include::{snippets}/auth-signup/http-request.adoc[]
+include::{snippets}/auth-signup/request-parts.adoc[]
+include::{snippets}/auth-signup/request-part-signUpRequest-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/auth-signup/http-response.adoc[]
+include::{snippets}/auth-signup/response-fields.adoc[]

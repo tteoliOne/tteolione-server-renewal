@@ -25,7 +25,7 @@ public class AuthController {
 
     @PostMapping(path = "/signup", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponse<String> signupUser(@Valid @RequestPart(value = "signUpRequest") SignUpReq request,
-                                           @RequestPart(value = "profile") MultipartFile profile) throws IOException {
+                                           @RequestPart(value = "profile") MultipartFile profile) {
         authService.signUpUser(request.toServiceRequest(), profile);
         return BaseResponse.of("회원가입 성공입니다.");
     }

@@ -53,6 +53,12 @@ public enum Code {
     APPLE_FEIGN_API_ERROR(138, HttpStatus.BAD_REQUEST, "애플 소셜 로그인 Feign API Feign Client 호출 오류"),
     EMPTY_APPLE_AUTHORZITION_CODE(139, HttpStatus.BAD_REQUEST, "애플의 인가코드를 입력해 주세요."),
     EMPTY_APPLE_REFRESH_TOKEN(140, HttpStatus.BAD_REQUEST, "애플의 리프레쉬 토큰을 입력해 주세요."),
+    EMPTY_FILE_EXCEPTION(141, HttpStatus.BAD_REQUEST, "업로드 이미지가 비어있거나 파일 이름이 없습니다."),
+    IO_EXCEPTION_ON_IMAGE_UPLOAD(142, HttpStatus.BAD_REQUEST, "이미지 업로드 중 입출력 예외가 발생했습니다."),
+    NO_FILE_EXTENTION(143, HttpStatus.BAD_REQUEST, "파일 확장자가 없습니다."),
+    INVALID_FILE_EXTENTION(144, HttpStatus.BAD_REQUEST, "허용되지 않은 파일 확장자입니다.(jpg, jpeg, png, gif 허용)"),
+    PUT_OBJECT_EXCEPTION(145, HttpStatus.BAD_REQUEST, "S3에 이미지를 업로드하는 동안 예외가 발생했습니다."),
+    IO_EXCEPTION_ON_IMAGE_DELETE(145, HttpStatus.BAD_REQUEST, "이미지 삭제 중 입출력 예외가 발생했습니다."),
 
 
 

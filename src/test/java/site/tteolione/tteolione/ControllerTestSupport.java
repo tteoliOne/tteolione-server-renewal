@@ -7,15 +7,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import site.tteolione.tteolione.api.controller.email.EmailController;
+import site.tteolione.tteolione.api.controller.user.AuthController;
 import site.tteolione.tteolione.api.controller.user.UserController;
 import site.tteolione.tteolione.api.service.email.EmailService;
+import site.tteolione.tteolione.api.service.user.AuthService;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.config.redis.RedisUtil;
 
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "private"})
 @WebMvcTest(controllers = {
         UserController.class,
-        EmailController.class
+        EmailController.class,
+        AuthController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -33,5 +36,8 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected EmailService emailService;
+
+    @MockBean
+    protected AuthService authService;
 
 }

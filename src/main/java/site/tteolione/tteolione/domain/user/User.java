@@ -34,7 +34,6 @@ public class User extends BaseEntity {
 
     private String email;
     private boolean emailAuthChecked;
-    private String provider;
     private String providerId;
     private boolean activated;
 
@@ -64,7 +63,7 @@ public class User extends BaseEntity {
     }
 
     @Builder
-    public User(String loginId, String password, String username, String nickname, String intro, String profile, String targetToken, double ddabongScore, ELoginType loginType, String email, boolean emailAuthChecked, String provider, String providerId, boolean activated, Set<Authority> authorities) {
+    public User(String loginId, String password, String username, String nickname, String intro, String profile, String targetToken, double ddabongScore, ELoginType loginType, String email, boolean emailAuthChecked, String providerId, boolean activated, Set<Authority> authorities) {
         this.loginId = loginId;
         this.password = password;
         this.username = username;
@@ -76,7 +75,6 @@ public class User extends BaseEntity {
         this.loginType = loginType;
         this.email = email;
         this.emailAuthChecked = emailAuthChecked;
-        this.provider = provider;
         this.providerId = providerId;
         this.activated = activated;
         this.authorities = authorities;
