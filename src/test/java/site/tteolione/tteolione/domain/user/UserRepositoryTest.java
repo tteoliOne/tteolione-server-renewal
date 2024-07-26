@@ -31,9 +31,9 @@ class UserRepositoryTest extends IntegrationTestSupport {
     @Test
     void findByEmail() {
         //given
-        User user1 = createUser("test123", "test123@naver.com");
-        User user2 = createUser("test123", "test1234@naver.com");
-        User user3 = createUser("test123", "test12345@naver.com");
+        User user1 = createUser("test123", "test123@naver.com", "");
+        User user2 = createUser("test123", "test1234@naver.com", "");
+        User user3 = createUser("test123", "test12345@naver.com", "");
         userRepository.saveAll(List.of(user1, user2, user3));
 
         //when
@@ -49,9 +49,9 @@ class UserRepositoryTest extends IntegrationTestSupport {
     @Test
     void existsByEmailTrue() {
         //given
-        User user1 = createUser("test123", "test123@naver.com");
-        User user2 = createUser("test1234", "test1234@naver.com");
-        User user3 = createUser("test1235", "test12345@naver.com");
+        User user1 = createUser("test123", "test123@naver.com", "");
+        User user2 = createUser("test1234", "test1234@naver.com", "");
+        User user3 = createUser("test1235", "test12345@naver.com", "");
         userRepository.saveAll(List.of(user1, user2, user3));
 
         //when
@@ -65,9 +65,9 @@ class UserRepositoryTest extends IntegrationTestSupport {
     @Test
     void existsByEmailFalse() {
         //given
-        User user1 = createUser("test123", "test123@naver.com");
-        User user2 = createUser("test1234", "test1234@naver.com");
-        User user3 = createUser("test1235", "test12345@naver.com");
+        User user1 = createUser("test123", "test123@naver.com", "");
+        User user2 = createUser("test1234", "test1234@naver.com", "");
+        User user3 = createUser("test1235", "test12345@naver.com", "");
         userRepository.saveAll(List.of(user1, user2, user3));
 
         //when
@@ -81,9 +81,9 @@ class UserRepositoryTest extends IntegrationTestSupport {
     @Test
     void findOneWithAuthoritiesByLoginId() {
         //given
-        User user1 = createUser("test123", "test123@naver.com");
-        User user2 = createUser("test1234", "test1234@naver.com");
-        User user3 = createUser("test1235", "test12345@naver.com");
+        User user1 = createUser("test123", "test123@naver.com", "");
+        User user2 = createUser("test1234", "test1234@naver.com", "");
+        User user3 = createUser("test1235", "test12345@naver.com", "");
         userRepository.saveAll(List.of(user1, user2, user3));
 
         //when
@@ -98,9 +98,9 @@ class UserRepositoryTest extends IntegrationTestSupport {
     @Test
     void notExistsByLoginId() {
         //given
-        User user1 = createUser("test123", "test123@naver.com");
-        User user2 = createUser("test1234", "test1234@naver.com");
-        User user3 = createUser("test1235", "test12345@naver.com");
+        User user1 = createUser("test123", "test123@naver.com", "");
+        User user2 = createUser("test1234", "test1234@naver.com", "");
+        User user3 = createUser("test1235", "test12345@naver.com", "");
         userRepository.saveAll(List.of(user1, user2, user3));
 
         // when
@@ -114,9 +114,9 @@ class UserRepositoryTest extends IntegrationTestSupport {
     @Test
     void existsByLoginId() {
         //given
-        User user1 = createUser("test123", "test123@naver.com");
-        User user2 = createUser("test1234", "test1234@naver.com");
-        User user3 = createUser("test1235", "test12345@naver.com");
+        User user1 = createUser("test123", "test123@naver.com", "");
+        User user2 = createUser("test1234", "test1234@naver.com", "");
+        User user3 = createUser("test1235", "test12345@naver.com", "");
         userRepository.saveAll(List.of(user1, user2, user3));
 
         // when
@@ -126,11 +126,45 @@ class UserRepositoryTest extends IntegrationTestSupport {
         Assertions.assertThat(result).isFalse();
     }
 
+    @DisplayName("존재하는 닉네임이 없으면 false 반환")
+    @Test
+    void existsByNicknameFalse() {
+        // given
+        String findNickname = "test123456";
+        User user1 = createUser("test123", "test123@naver.com", "test123");
+        User user2 = createUser("test1234", "test1234@naver.com", "test1234");
+        User user3 = createUser("test1235", "test12345@naver.com", "test12345");
+        userRepository.saveAll(List.of(user1, user2, user3));
 
-    private User createUser(String username, String email) {
+        // when
+        boolean result = userRepository.existsByNickname(findNickname);
+
+        // then
+        Assertions.assertThat(result).isFalse();
+    }
+
+    @DisplayName("존재하는 닉네임이 있으면 false 반환")
+    @Test
+    void existsByNicknameTrue() {
+        // given
+        String findNickname = "test123";
+        User user1 = createUser("test123", "test123@naver.com", findNickname);
+        User user2 = createUser("test1234", "test1234@naver.com", "test1234");
+        User user3 = createUser("test1235", "test12345@naver.com", "test12345");
+        userRepository.saveAll(List.of(user1, user2, user3));
+
+        // when
+        boolean result = userRepository.existsByNickname(findNickname);
+
+        // then
+        Assertions.assertThat(result).isTrue();
+    }
+
+    private User createUser(String username, String email, String nickname) {
         return User.builder()
                 .loginId(username)
                 .email(email)
+                .nickname(nickname)
                 .authorities(Collections.singleton(User.toRoleUserAuthority()))
                 .build();
     }

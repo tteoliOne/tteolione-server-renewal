@@ -2,11 +2,6 @@ spring:
   profiles:
     default: local
 
-  datasource:
-    url: jdbc:h2:mem:~/TteolioneApplication
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
 
   jpa:
     hibernate:
