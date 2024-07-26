@@ -6,12 +6,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
+import site.tteolione.tteolione.client.s3.S3ImageService;
 import site.tteolione.tteolione.config.exception.Code;
 import site.tteolione.tteolione.config.exception.GeneralException;
+import site.tteolione.tteolione.domain.mail.EmailAuth;
+import site.tteolione.tteolione.domain.mail.EmailAuthRepository;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
 
@@ -25,7 +29,10 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class AuthService implements UserDetailsService {
 
+    private final EmailAuthRepository emailAuthRepository;
     private final UserRepository userRepository;
+    private final S3ImageService s3ImageService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(final String loginId) {
@@ -44,17 +51,27 @@ public class AuthService implements UserDetailsService {
                 grantedAuthorities);
     }
 
-    public void signUpUser(SignUpServiceReq signUpReq, MultipartFile profile) throws IOException {
+    @Transactional
+    public User signUpUser(SignUpServiceReq request, MultipartFile profile)  {
         //이미 등록된 이메일 회원인지
-        validateIsAlreadyEmailRegisteredUser(signUpReq.getEmail());
+        validateIsAlreadyEmailRegisteredUser(request.getEmail());
         //보낸 이메일이 인증되었는지 확인
-//        EmailAuth findEmailAuth = validateEmailAuthEntity(signUpRequest.getEmail());
-//        String saveProfile = s3Service.uploadFile(profile);
-//
-//        userRepository.save(User.toAppEntity(signUpRequest, passwordEncoder, findEmailAuth, saveProfile));
+        EmailAuth emailAuth = validateEmailAuth(request.getEmail());
+        String saveProfile = s3ImageService.upload(profile);
+
+        User saveUser = userRepository.save(request.toEntity(passwordEncoder, saveProfile));
+
+        //회원가입이 끝난 후 인증된 메일 삭제
+        emailAuthRepository.deleteByEmail(emailAuth.getEmail());
+        return saveUser;
     }
 
-    public void validateIsAlreadyEmailRegisteredUser(String email) {
+    private EmailAuth validateEmailAuth(String email) {
+        return emailAuthRepository.findByEmail(email)
+                .orElseThrow(() -> new GeneralException(Code.VALIDATION_EMAIL));
+    }
+
+    private void validateIsAlreadyEmailRegisteredUser(String email) {
         Optional<User> findUser = userRepository.findByEmail(email);
         if (findUser.isPresent()) {
             User user = findUser.get();
