@@ -1,0 +1,10 @@
+[[duplicate-loginId]]
+=== 로그인 아아디 중복체크 API
+
+==== HTTP Request
+include::{snippets}/duplicate-loginId/http-request.adoc[]
+include::{snippets}/duplicate-loginId/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/duplicate-loginId/http-response.adoc[]
+include::{snippets}/duplicate-loginId/response-fields.adoc[]

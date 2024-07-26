@@ -1,0 +1,21 @@
+[[email-create]]
+=== 이메일 전송 API
+
+==== HTTP Request
+include::{snippets}/email-create/http-request.adoc[]
+include::{snippets}/email-create/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/email-create/http-response.adoc[]
+include::{snippets}/email-create/response-fields.adoc[]
+
+[[email-verify]]
+=== 이메일 검증 API
+
+==== HTTP Request
+include::{snippets}/email-verify/http-request.adoc[]
+include::{snippets}/email-verify/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/email-verify/http-response.adoc[]
+include::{snippets}/email-verify/response-fields.adoc[]
