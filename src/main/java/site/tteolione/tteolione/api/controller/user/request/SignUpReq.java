@@ -2,19 +2,18 @@ package site.tteolione.tteolione.api.controller.user.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
-import site.tteolione.tteolione.domain.user.User;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class SignUpReq {
 
-    @NotBlank(message = "회원님의 로그인Id를 적어주세요.")
+    @NotNull(message = "회원님의 로그인Id를 적어주세요.")
     @Pattern(
             regexp = "^(?=.*[a-z])[a-z0-9]{6,20}$",
             message = "id는 소문자 하나이상있어야하고, 6자~20자여야합니다."
@@ -38,14 +37,13 @@ public class SignUpReq {
     )
     private String password;
 
-    public User toAppEntity() {
-        return User.builder()
-                .loginId(loginId)
-                .email(email)
-                .username(username)
-                .nickname(nickname)
-                .password(password)
-                .build();
+    @Builder
+    public SignUpReq(String loginId, String email, String username, String nickname, String password) {
+        this.loginId = loginId;
+        this.email = email;
+        this.username = username;
+        this.nickname = nickname;
+        this.password = password;
     }
 
     public SignUpServiceReq toServiceRequest() {
