@@ -1,0 +1,20 @@
+ifndef::snippets[]
+:snippets: ../../build/generated-snippets
+endif::[]
+= 떠리원 REST API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+[[Email-API]]
+== Email API
+
+include::api/email/email.adoc[]
+
+[[USER-API]]
+== USER API
+
+include::api/user/user.adoc[]
