@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 //TODO https://reeeemind.tistory.com/151
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/email")
+@RequestMapping("/api/v2/email")
 public class EmailController {
 
     private final EmailService emailService;
