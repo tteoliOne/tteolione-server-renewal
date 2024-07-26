@@ -1,7 +1,6 @@
 spring:
   profiles:
-    default: local
-
+    active: local,private
 
   jpa:
     hibernate:
