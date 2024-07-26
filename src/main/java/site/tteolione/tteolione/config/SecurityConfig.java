@@ -64,8 +64,8 @@ public class SecurityConfig {
                         .requestMatchers("/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
-                        .requestMatchers("/api/email/**").permitAll()
-                        .requestMatchers("/api/users/check/**").permitAll()
+                        .requestMatchers("/api/v2/email/**").permitAll()
+                        .requestMatchers("/api/v2/users/check/**").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 //                        .requestMatchers("/api/users/**").hasRole("MEMBER")

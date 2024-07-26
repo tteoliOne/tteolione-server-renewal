@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import site.tteolione.tteolione.ControllerTestSupport;
+import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
 import site.tteolione.tteolione.config.exception.Code;
 
@@ -33,7 +34,7 @@ class UserControllerTest extends ControllerTestSupport {
 
         //then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/users/check/login-id")
+                        MockMvcRequestBuilders.post("/api/v2/users/check/login-id")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +60,7 @@ class UserControllerTest extends ControllerTestSupport {
 
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/users/check/login-id")
+                        MockMvcRequestBuilders.post("/api/v2/users/check/login-id")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +86,7 @@ class UserControllerTest extends ControllerTestSupport {
 
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/users/check/login-id")
+                        MockMvcRequestBuilders.post("/api/v2/users/check/login-id")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -111,7 +112,7 @@ class UserControllerTest extends ControllerTestSupport {
 
         //then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/users/check/login-id")
+                        MockMvcRequestBuilders.post("/api/v2/users/check/login-id")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,5 +122,58 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("id는 소문자 하나이상있어야하고, 6자~20자여야합니다."));
+    }
+
+    @DisplayName("닉네임 중복 테스트 통과")
+    @Test
+    @WithMockUser
+    void duplicateNickname() throws Exception {
+        // given
+        DupNicknameReq request = DupNicknameReq.builder()
+                .nickname("test12")
+                .build();
+        // when
+        BDDMockito.when(userService.existByNickname(Mockito.anyString()))
+                .thenReturn(false);
+
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/check/nickname")
+                                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.OK.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Ok"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("사용가능한 닉네임입니다."));
+    }
+
+    @DisplayName("닉네임 중복 체크 빈 문자열")
+    @Test
+    @WithMockUser
+    void duplicateNicknameEmpty() throws Exception {
+        // given러
+        DupNicknameReq request = DupNicknameReq.builder()
+                .nickname("")
+                .build();
+        // when
+        BDDMockito.when(userService.existByNickname(Mockito.anyString()))
+                .thenReturn(true);
+
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/check/nickname")
+                                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("닉네임은 2글자 이상 6글자 이하이여야 합니다."));
     }
 }
