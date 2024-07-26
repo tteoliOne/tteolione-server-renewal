@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import site.tteolione.tteolione.api.controller.email.request.EmailSendReq;
 import site.tteolione.tteolione.api.controller.user.UserController;
+import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.docs.RestDocsSupport;
@@ -32,7 +33,7 @@ public class UserControllerDocsTest extends RestDocsSupport {
 
     @DisplayName("회원가입시 로그인 아이디 중복체크 API")
     @Test
-    void sendEmail() throws Exception {
+    void duplicateLoginId() throws Exception {
         // given
         DuplicateLoginIdReq request = DuplicateLoginIdReq.builder()
                 .loginId("test123")
@@ -44,7 +45,7 @@ public class UserControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/users/check/login-id")
+                        MockMvcRequestBuilders.post("/api/v2/users/check/login-id")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -56,6 +57,45 @@ public class UserControllerDocsTest extends RestDocsSupport {
                         requestFields(
                                 fieldWithPath("loginId").type(JsonFieldType.STRING)
                                         .description("로그인 아이디")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("성공유무"),
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드값"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(JsonFieldType.STRING)
+                                        .description("데이터"))
+                ));
+    }
+
+    @DisplayName("닉네임 중복체크 API")
+    @Test
+    void duplicateNickname() throws Exception {
+        // given
+        DupNicknameReq request = DupNicknameReq.builder()
+                .nickname("test12")
+                .build();
+
+        BDDMockito.given(userService.existByNickname(Mockito.anyString()))
+                .willReturn(false);
+
+        // when
+        // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/check/nickname")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("duplicate-nickname",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("nickname").type(JsonFieldType.STRING)
+                                        .description("닉네임")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN)
