@@ -44,7 +44,7 @@ public class EmailControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/send")
+                        MockMvcRequestBuilders.post("/api/v2/email/send")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -84,7 +84,7 @@ public class EmailControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/verify")
+                        MockMvcRequestBuilders.post("/api/v2/email/verify")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )

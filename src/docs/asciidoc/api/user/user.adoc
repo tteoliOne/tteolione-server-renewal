@@ -8,3 +8,15 @@ include::{snippets}/duplicate-loginId/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/duplicate-loginId/http-response.adoc[]
 include::{snippets}/duplicate-loginId/response-fields.adoc[]
+
+[[duplicate-nickname]]
+=== 닉네임 중복체크 API
+
+==== HTTP Request
+include::{snippets}/duplicate-nickname/http-request.adoc[]
+include::{snippets}/duplicate-nickname/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/duplicate-nickname/http-response.adoc[]
+include::{snippets}/duplicate-nickname/response-fields.adoc[]
+

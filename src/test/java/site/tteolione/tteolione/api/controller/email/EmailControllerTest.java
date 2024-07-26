@@ -30,7 +30,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/send")
+                        MockMvcRequestBuilders.post("/api/v2/email/send")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -56,7 +56,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/send")
+                        MockMvcRequestBuilders.post("/api/v2/email/send")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -80,7 +80,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/send")
+                        MockMvcRequestBuilders.post("/api/v2/email/send")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +105,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/send")
+                        MockMvcRequestBuilders.post("/api/v2/email/send")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +131,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/verify")
+                        MockMvcRequestBuilders.post("/api/v2/email/verify")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +158,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/verify")
+                        MockMvcRequestBuilders.post("/api/v2/email/verify")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -183,7 +183,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/verify")
+                        MockMvcRequestBuilders.post("/api/v2/email/verify")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -209,7 +209,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/verify")
+                        MockMvcRequestBuilders.post("/api/v2/email/verify")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -235,7 +235,7 @@ class EmailControllerTest extends ControllerTestSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/email/verify")
+                        MockMvcRequestBuilders.post("/api/v2/email/verify")
                                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
