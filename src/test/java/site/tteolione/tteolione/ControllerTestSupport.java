@@ -12,10 +12,10 @@ import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.config.redis.RedisUtil;
 
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "private"})
 @WebMvcTest(controllers = {
         UserController.class,
-        EmailController.class
+        EmailController.class,
 })
 public abstract class ControllerTestSupport {
 
