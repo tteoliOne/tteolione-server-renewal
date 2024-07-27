@@ -24,8 +24,8 @@ public class EmailService {
 
     // 메일 보내기
     public boolean sendEmail(String toEmail) throws MessagingException {
-        if (redisUtil.existData(toEmail)) {
-            redisUtil.deleteData(toEmail);
+        if (redisUtil.existData("code:"+toEmail)) {
+            redisUtil.deleteData("code:"+toEmail);
         }
         return emailSendClient.sendEmail(toEmail);
     }
@@ -41,6 +41,7 @@ public class EmailService {
         boolean verifySuccess = codeFoundByEmail.equals(code);
         if (verifySuccess) {
             emailAuthRepository.save(EmailAuth.createEmailAuth(email));
+            redisUtil.deleteData("code:"+email);
             return true;
         } else {
             throw new GeneralException(Code.NOT_EXISTS_AUTHCODE);

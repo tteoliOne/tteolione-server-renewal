@@ -9,3 +9,14 @@ include::{snippets}/auth-signup/request-part-signUpRequest-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/auth-signup/http-response.adoc[]
 include::{snippets}/auth-signup/response-fields.adoc[]
+
+[[auth-login]]
+=== 로그인 API
+
+==== HTTP Request
+include::{snippets}/auth-login/http-request.adoc[]
+include::{snippets}/auth-login/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/auth-login/http-response.adoc[]
+include::{snippets}/auth-login/response-fields.adoc[]

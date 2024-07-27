@@ -33,7 +33,7 @@ public class EmailController {
 
     @PostMapping("/verify")
     public BaseResponse<String> verifyEmailAndCode(@Valid @RequestBody EmailAuthCodeReq request) throws NoSuchAlgorithmException {
-        String codeFoundByEmail = redisUtil.getData(request.getEmail());
+        String codeFoundByEmail = redisUtil.getData("code:"+request.getEmail());
         emailService.verifyEmailCode(request.getEmail(), request.getCode(), codeFoundByEmail);
         return BaseResponse.of("이메일 인증 성공했습니다.");
     }
