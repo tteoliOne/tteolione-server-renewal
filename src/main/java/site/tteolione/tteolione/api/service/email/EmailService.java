@@ -41,6 +41,7 @@ public class EmailService {
         boolean verifySuccess = codeFoundByEmail.equals(code);
         if (verifySuccess) {
             emailAuthRepository.save(EmailAuth.createEmailAuth(email));
+            redisUtil.deleteData(email);
             return true;
         } else {
             throw new GeneralException(Code.NOT_EXISTS_AUTHCODE);

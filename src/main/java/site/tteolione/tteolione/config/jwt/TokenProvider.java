@@ -47,7 +47,7 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenInfoResponse createToken(Authentication authentication) {
+    public TokenInfoRes createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -68,7 +68,7 @@ public class TokenProvider implements InitializingBean {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        return TokenInfoResponse.from("Bearer", accessToken, refreshToken, refreshTokenValidityTime);
+        return TokenInfoRes.from("Bearer", accessToken, refreshToken, refreshTokenValidityTime);
 
     }
 

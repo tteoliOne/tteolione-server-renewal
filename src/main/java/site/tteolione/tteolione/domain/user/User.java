@@ -79,4 +79,8 @@ public class User extends BaseEntity {
         this.activated = activated;
         this.authorities = authorities;
     }
+
+    public void changeTargetToken(String targetToken) {
+        this.targetToken = targetToken;
+    }
 }
