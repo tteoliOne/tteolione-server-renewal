@@ -22,6 +22,9 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * 회원가입
+     */
     @PostMapping(path = "/signup", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponse<String> signupUser(@Valid @RequestPart(value = "signUpRequest") SignUpReq request,
                                            @RequestPart(value = "profile") MultipartFile profile) {
@@ -29,6 +32,9 @@ public class AuthController {
         return BaseResponse.of("회원가입 성공입니다.");
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public BaseResponse<LoginRes> loginUser(@Valid @RequestBody LoginReq request) {
         return BaseResponse.of(authService.loginUser(request.toServiceRequest()));
