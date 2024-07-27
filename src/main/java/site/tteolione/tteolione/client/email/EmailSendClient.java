@@ -69,7 +69,7 @@ public class EmailSendClient {
         message.setFrom(username + "@naver.com");
         message.setText(setContext(authCode), "utf-8", "html");
 
-        redisUtil.setDataExpire(email, authCode, 60 * 5L);
+        redisUtil.setDataExpire("code:"+email, authCode, 60 * 5L);
 
         return message;
     }

@@ -1,7 +1,5 @@
 package site.tteolione.tteolione.api.controller.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -13,12 +11,16 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.multipart.MultipartFile;
 import site.tteolione.tteolione.ControllerTestSupport;
+import site.tteolione.tteolione.api.controller.user.request.LoginReq;
 import site.tteolione.tteolione.api.controller.user.request.SignUpReq;
+import site.tteolione.tteolione.api.controller.user.response.LoginRes;
+import site.tteolione.tteolione.api.service.user.request.LoginServiceReq;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
 import site.tteolione.tteolione.config.exception.Code;
 import site.tteolione.tteolione.domain.user.User;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -518,6 +520,51 @@ class AuthControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("회원님의 닉네임을 적어주세요."));
+    }
+    
+    @DisplayName("로그인 통과 테스트")
+    @Test
+    @WithMockUser
+    void loginUser() throws Exception{
+        // given
+        LoginReq request = LoginReq.builder()
+                .loginId("test123")
+                .password("test123@")
+                .targetToken(null)
+                .build();
+
+        LoginRes response = LoginRes.builder()
+                .userId(1L)
+                .existsUser(true)
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .nickname("testUsername")
+                .appleRefreshToken(null)
+                .build();
+
+
+        // when
+        BDDMockito.when(authService.loginUser(Mockito.any(LoginServiceReq.class)))
+                .thenReturn(response);
+
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/auth/login")
+                                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.OK.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Ok"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(1L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.existsUser").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.accessToken").value("accessToken"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.refreshToken").value("refreshToken"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.nickname").value("testUsername"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.appleRefreshToken").doesNotExist());
     }
 
 }

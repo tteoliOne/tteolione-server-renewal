@@ -2,6 +2,7 @@ package site.tteolione.tteolione.api.controller.user.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import site.tteolione.tteolione.api.service.user.request.LoginServiceReq;
@@ -25,6 +26,13 @@ public class LoginReq {
     private String password;
 
     private String targetToken;
+
+    @Builder
+    public LoginReq(String loginId, String password, String targetToken) {
+        this.loginId = loginId;
+        this.password = password;
+        this.targetToken = targetToken;
+    }
 
     public LoginServiceReq toServiceRequest() {
         return LoginServiceReq.builder()
