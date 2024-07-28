@@ -9,5 +9,5 @@ public enum EAuthority{
     eRoleDisabledUser("ROLE_DISABLED_USER"),
     eRoleUser("ROLE_USER"),
     eWithdrawalUser("ROLE_WITHDRAW_USER");
-    private final String value;
+    private final String text;
 }

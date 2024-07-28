@@ -112,7 +112,7 @@ public class AuthService implements UserDetailsService {
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
         for (GrantedAuthority grantedAuthority : grantedAuthorities) {
-            if (grantedAuthority.getAuthority().equals(EAuthority.eWithdrawalUser.getValue())) {
+            if (grantedAuthority.getAuthority().equals(EAuthority.eWithdrawalUser.getText())) {
                 throw new GeneralException(Code.WITH_DRAW_USER);
             }
         }
