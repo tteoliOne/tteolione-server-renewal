@@ -87,11 +87,11 @@ class ProductServiceTest extends IntegrationTestSupport {
         PostProductRes response = productService.saveProduct(photos, receipt, request);
 
         //then
-        Mockito.verify(userService).findByLoginId("test123");
-        Mockito.verify(categoryService).findByCategoryId(request.getCategoryId());
-        Mockito.verify(productRepository).save(ArgumentMatchers.any(Product.class));
-        Mockito.verify(productFileService).saveImages(photos, mockProduct, EPhotoType.eProduct);
-        Mockito.verify(productFileService).saveImage(receipt, mockProduct, EPhotoType.eReceipt);
+        Mockito.verify(userService, Mockito.times(1)).findByLoginId("test123");
+        Mockito.verify(categoryService, Mockito.times(1)).findByCategoryId(request.getCategoryId());
+        Mockito.verify(productRepository, Mockito.times(1)).save(ArgumentMatchers.any(Product.class));
+        Mockito.verify(productFileService, Mockito.times(1)).saveImages(photos, mockProduct, EPhotoType.eProduct);
+        Mockito.verify(productFileService, Mockito.times(1)).saveImage(receipt, mockProduct, EPhotoType.eReceipt);
 
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.getProductId()).isEqualTo(mockProduct.getProductId());
