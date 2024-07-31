@@ -12,10 +12,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import site.tteolione.tteolione.api.controller.user.response.LoginRes;
+import site.tteolione.tteolione.api.service.user.response.LoginRes;
 import site.tteolione.tteolione.api.service.user.request.LoginServiceReq;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
 import site.tteolione.tteolione.client.s3.S3ImageService;
+import site.tteolione.tteolione.config.CustomUserDetails;
 import site.tteolione.tteolione.config.exception.Code;
 import site.tteolione.tteolione.config.exception.GeneralException;
 import site.tteolione.tteolione.config.jwt.TokenInfoRes;
@@ -49,15 +50,20 @@ public class AuthService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(loginId + "유저 이름을 찾을 수 없습니다."));
     }
 
-    private org.springframework.security.core.userdetails.User createUser(String username, User user) {
+    private CustomUserDetails createUser(String username, User user) {
         if (!user.isActivated()) throw new GeneralException("유저가 활성화되어 있지 않습니다.");
         List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(user.getLoginId(),
+        return new CustomUserDetails(
+                user.getLoginId(),
                 user.getPassword(),
-                grantedAuthorities);
+                user.isActivated(),
+                grantedAuthorities,
+                user.getUserId()
+        );  // 사용자 ID를 추가합니다.
     }
+
 
     /**
      *  회원가입 서비스 로직
