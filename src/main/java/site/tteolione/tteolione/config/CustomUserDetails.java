@@ -1,46 +1,51 @@
 package site.tteolione.tteolione.config;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import site.tteolione.tteolione.domain.user.User;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
-    private final String loginId;
-    private final String password;
-    private final boolean activated;
-    private final Collection<? extends GrantedAuthority> authorities;
-    private final Long userId;
+    private final User user;
 
-    public CustomUserDetails(String loginId, String password, boolean activated, Collection<? extends GrantedAuthority> authorities, Long userId) {
-        this.loginId = loginId;
-        this.password = password;
-        this.activated = activated;
-        this.authorities = authorities;
-        this.userId = userId;
-    }
-
-    public Long getUserId() {
-        return userId;
+    // Constructor
+    public CustomUserDetails(User user) {
+        this.user = user;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return user.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public String getPassword() {
-        return password;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public Long getId() {
+        return user.getUserId();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
     }
 
     @Override
     public String getUsername() {
-        return loginId;
+        return user.getUsername();
     }
 
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -58,7 +63,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return activated;
+        return true;
     }
 }
-

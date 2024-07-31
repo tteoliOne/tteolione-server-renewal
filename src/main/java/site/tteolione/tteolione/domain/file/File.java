@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.tteolione.tteolione.domain.BaseEntity;
+import site.tteolione.tteolione.domain.file.constants.EPhotoType;
 import site.tteolione.tteolione.domain.product.Product;
 
 @Entity
@@ -23,9 +24,21 @@ public class File extends BaseEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Enumerated(EnumType.STRING)
+    private EPhotoType type;
+
     @Builder
-    public File(String fileUrl, Product product) {
+    public File(String fileUrl, Product product, EPhotoType type) {
         this.fileUrl = fileUrl;
         this.product = product;
+        this.type = type;
+    }
+
+    public static File create(String fileUrl, Product product, EPhotoType type) {
+        return File.builder()
+                .fileUrl(fileUrl)
+                .product(product)
+                .type(type)
+                .build();
     }
 }

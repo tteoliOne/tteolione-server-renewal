@@ -55,15 +55,8 @@ public class AuthService implements UserDetailsService {
         List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
-        return new CustomUserDetails(
-                user.getLoginId(),
-                user.getPassword(),
-                user.isActivated(),
-                grantedAuthorities,
-                user.getUserId()
-        );  // 사용자 ID를 추가합니다.
+        return new CustomUserDetails(user);
     }
-
 
     /**
      *  회원가입 서비스 로직
@@ -136,7 +129,7 @@ public class AuthService implements UserDetailsService {
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         TokenInfoRes tokenInfoRes = tokenProvider.createToken(authenticationToken);
-        redisUtil.setDataExpire(
+        redisUtil.setDataExpireMillis(
                 "RT:" + authenticationToken.getName(),
                 tokenInfoRes.getRefreshToken(),
                 tokenInfoRes.getRefreshTokenExpirationTime()

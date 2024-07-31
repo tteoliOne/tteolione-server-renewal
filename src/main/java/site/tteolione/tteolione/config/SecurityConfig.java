@@ -55,8 +55,6 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http
-                .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         //경로별 인가 작업
         http
@@ -72,6 +70,8 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/users/**").hasRole("MEMBER")
                         .anyRequest().authenticated());
 
+        http
+                .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         // 등등의 설정들 ...
 

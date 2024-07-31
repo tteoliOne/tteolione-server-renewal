@@ -31,4 +31,7 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_USER));
     }
 
+    public User findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId).orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_USER));
+    }
 }
