@@ -98,6 +98,41 @@ class UserServiceTest extends IntegrationTestSupport {
         Assertions.assertThat(result).isTrue();
     }
 
+    @DisplayName("userId로 조회했는데 존재하는 회원일 때")
+    @Test
+    void findById() {
+        //given
+        User user1 = createUser("test123", "test123@naver.com");
+        User user2 = createUser("test1234", "test1234@naver.com");
+        User user3 = createUser("test1235", "test12345@naver.com");
+        userRepository.saveAllAndFlush(List.of(user1, user2, user3));
+
+        // when
+        User user = userService.findById(user1.getUserId());
+
+        // then
+        Assertions.assertThat(user.getUserId()).isEqualTo(user1.getUserId());
+        Assertions.assertThat(user.getEmail()).isEqualTo(user1.getEmail());
+    }
+
+    @DisplayName("userId로 조회했는데 존재하지 않는 회원일 때")
+    @Test
+    void findByIdNotExist() {
+        //given
+        User user1 = createUser("test123", "test123@naver.com");
+        User user2 = createUser("test1234", "test1234@naver.com");
+        User user3 = createUser("test1235", "test12345@naver.com");
+        userRepository.saveAll(List.of(user1, user2, user3));
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.findById(4L);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_EXISTS_USER);
+    }
+
 
     private User createUser(String username, String email) {
         return User.builder()
