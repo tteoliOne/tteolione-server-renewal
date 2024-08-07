@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.api.controller.user.response;
+package site.tteolione.tteolione.api.service.user.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

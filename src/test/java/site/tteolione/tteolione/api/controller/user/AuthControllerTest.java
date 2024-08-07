@@ -14,15 +14,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import site.tteolione.tteolione.ControllerTestSupport;
 import site.tteolione.tteolione.api.controller.user.request.LoginReq;
 import site.tteolione.tteolione.api.controller.user.request.SignUpReq;
-import site.tteolione.tteolione.api.controller.user.response.LoginRes;
+import site.tteolione.tteolione.api.service.user.response.LoginRes;
 import site.tteolione.tteolione.api.service.user.request.LoginServiceReq;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
 import site.tteolione.tteolione.config.exception.Code;
 import site.tteolione.tteolione.domain.user.User;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AuthControllerTest extends ControllerTestSupport {
 

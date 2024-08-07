@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.tteolione.tteolione.config.exception.Code;
 import site.tteolione.tteolione.config.exception.GeneralException;
+import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
 
 @Service
@@ -24,5 +25,13 @@ public class UserService {
 
     public boolean existByNickname(String nickname) {
         return userRepository.existsByNickname(nickname);
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_USER));
+    }
+
+    public User findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId).orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_USER));
     }
 }

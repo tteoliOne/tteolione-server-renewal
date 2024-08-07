@@ -1,15 +1,19 @@
 package site.tteolione.tteolione;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import site.tteolione.tteolione.api.controller.email.EmailController;
+import site.tteolione.tteolione.api.controller.product.ProductController;
 import site.tteolione.tteolione.api.controller.user.AuthController;
 import site.tteolione.tteolione.api.controller.user.UserController;
 import site.tteolione.tteolione.api.service.email.EmailService;
+import site.tteolione.tteolione.api.service.product.ProductService;
 import site.tteolione.tteolione.api.service.user.AuthService;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.config.redis.RedisUtil;
@@ -18,7 +22,8 @@ import site.tteolione.tteolione.config.redis.RedisUtil;
 @WebMvcTest(controllers = {
         UserController.class,
         EmailController.class,
-        AuthController.class
+        AuthController.class,
+        ProductController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -39,5 +44,11 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected AuthService authService;
+
+    @MockBean
+    protected ProductService productService;
+
+    @Mock
+    protected Authentication authentication;
 
 }

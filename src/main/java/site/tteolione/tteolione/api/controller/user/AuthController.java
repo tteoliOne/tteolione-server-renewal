@@ -8,11 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.tteolione.tteolione.api.controller.user.request.LoginReq;
 import site.tteolione.tteolione.api.controller.user.request.SignUpReq;
-import site.tteolione.tteolione.api.controller.user.response.LoginRes;
+import site.tteolione.tteolione.api.service.user.response.LoginRes;
 import site.tteolione.tteolione.api.service.user.AuthService;
 import site.tteolione.tteolione.config.exception.BaseResponse;
-
-import java.io.IOException;
 
 @Slf4j
 @RestController

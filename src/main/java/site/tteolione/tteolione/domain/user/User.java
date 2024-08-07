@@ -46,19 +46,19 @@ public class User extends BaseEntity {
 
     public static Authority toRoleWithDrawUserAuthority() {
         return Authority.builder()
-                .authorityName(EAuthority.eWithdrawalUser.getValue())
+                .authorityName(EAuthority.eWithdrawalUser.getText())
                 .build();
     }
 
     public static Authority toRoleDisabledUserAuthority() {
         return Authority.builder()
-                .authorityName(EAuthority.eRoleDisabledUser.getValue())
+                .authorityName(EAuthority.eRoleDisabledUser.getText())
                 .build();
     }
 
     public static Authority toRoleUserAuthority() {
         return Authority.builder()
-                .authorityName(EAuthority.eRoleUser.getValue())
+                .authorityName(EAuthority.eRoleUser.getText())
                 .build();
     }
 
