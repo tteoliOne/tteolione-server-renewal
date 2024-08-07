@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import site.tteolione.tteolione.api.service.product.request.PostProductServiceReq;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class PostProductReq {
     private int shareCount;
 
     @NotNull(message = "구매 일자를 입력해주세요.")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime buyDate;
 
     @NotBlank(message = "상세 설명을 입력해주세요.")

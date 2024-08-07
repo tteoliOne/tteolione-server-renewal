@@ -24,3 +24,8 @@ include::api/email/email.adoc[]
 
 include::api/user/user.adoc[]
 
+[[PRODUCT-API]]
+== PRODUCT API
+
+include::api/product/product.adoc[]
+
