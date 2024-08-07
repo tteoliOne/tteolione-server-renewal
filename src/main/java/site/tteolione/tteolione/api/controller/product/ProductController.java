@@ -23,7 +23,7 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * 상품 등록
+     * 상품 등록 
      */
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponse<PostProductRes> createProduct(
