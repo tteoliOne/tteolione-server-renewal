@@ -40,3 +40,5 @@ out/
 /src/main/resources/application-local.yml
 /src/main/resources/application-test.yml
 /src/main/resources/application-private.yml
+/src/main/generated
+/src/main/resources/static/docs/index.html
