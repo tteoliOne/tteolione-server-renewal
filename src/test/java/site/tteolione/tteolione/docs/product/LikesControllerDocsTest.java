@@ -30,7 +30,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
 
-public class ProductControllerDocsTest extends RestDocsSupport {
+public class LikesControllerDocsTest extends RestDocsSupport {
 
     private final ProductService productService = Mockito.mock(ProductService.class);
 

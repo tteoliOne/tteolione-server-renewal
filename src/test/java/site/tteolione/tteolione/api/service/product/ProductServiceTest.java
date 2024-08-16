@@ -15,21 +15,18 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 import site.tteolione.tteolione.IntegrationTestSupport;
-import site.tteolione.tteolione.WithAuthUser;
+import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.service.category.CategoryService;
 import site.tteolione.tteolione.api.service.product.request.PostProductServiceReq;
 import site.tteolione.tteolione.api.service.product.response.PostProductRes;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.domain.category.Category;
-import site.tteolione.tteolione.domain.file.FileRepository;
 import site.tteolione.tteolione.domain.file.constants.EPhotoType;
 import site.tteolione.tteolione.domain.product.Product;
 import site.tteolione.tteolione.domain.product.ProductRepository;
 import site.tteolione.tteolione.domain.user.User;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ProductServiceTest extends IntegrationTestSupport {
 
@@ -58,7 +55,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 
     @DisplayName("상품 등록 서비스")
     @Test
-    @WithAuthUser(loginId = "test123", role = "ROLE_USER")
+    @WithMockCustomAccount(loginId = "test123", email = "test123@naver.com", username = "testUser")
     void saveProduct() {
         //given
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);

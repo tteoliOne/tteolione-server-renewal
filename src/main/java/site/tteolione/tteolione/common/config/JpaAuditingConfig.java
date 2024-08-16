@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config;
+package site.tteolione.tteolione.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

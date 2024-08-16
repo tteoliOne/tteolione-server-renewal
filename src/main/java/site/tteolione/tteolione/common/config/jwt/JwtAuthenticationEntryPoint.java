@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.jwt;
+package site.tteolione.tteolione.common.config.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static site.tteolione.tteolione.config.jwt.GlobalConstants.*;
+import static site.tteolione.tteolione.common.config.jwt.GlobalConstants.*;
 
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {

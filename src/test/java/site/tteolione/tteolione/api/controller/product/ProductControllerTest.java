@@ -15,21 +15,20 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
 import site.tteolione.tteolione.ControllerTestSupport;
-import site.tteolione.tteolione.WithAuthUser;
+import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.controller.product.request.PostProductReq;
 import site.tteolione.tteolione.api.service.product.request.PostProductServiceReq;
 import site.tteolione.tteolione.api.service.product.response.PostProductRes;
-import site.tteolione.tteolione.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.domain.user.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class ProductControllerTest extends ControllerTestSupport {
 
     @DisplayName("상품 등록 통과 테스트")
     @Test
-    @WithAuthUser(loginId = "test123", role = "ROLE_USER")
+    @WithMockCustomAccount(loginId = "test123", email = "test123@naver.com", username = "testUser")
     void createProduct() throws Exception {
         // given
         setAuth();
@@ -93,7 +92,7 @@ public class ProductControllerTest extends ControllerTestSupport {
 
     @DisplayName("상품 등록 실패 테스트 - null 카테고리Id")
     @Test
-    @WithAuthUser(loginId = "test123", role = "ROLE_USER")
+    @WithMockCustomAccount(loginId = "test123", email = "test123@naver.com", username = "testUser")
     void createProduct_NullCategoryId() throws Exception {
         // given
         setAuth();
@@ -154,7 +153,7 @@ public class ProductControllerTest extends ControllerTestSupport {
 
     @DisplayName("상품 등록 실패 테스트 - 빈문자열 상품 제목")
     @Test
-    @WithAuthUser(loginId = "test123", role = "ROLE_USER")
+    @WithMockCustomAccount(loginId = "test123", email = "test123@naver.com", username = "testUser")
     void createProduct_EmptyTitle() throws Exception {
         // given
         setAuth();
@@ -215,7 +214,7 @@ public class ProductControllerTest extends ControllerTestSupport {
 
     @DisplayName("상품 등록 실패 테스트 - 양수가 아닌 상품 구매 가격")
     @Test
-    @WithAuthUser(loginId = "test123", role = "ROLE_USER")
+    @WithMockCustomAccount(loginId = "test123", email = "test123@naver.com", username = "testUser")
     void createProduct_NotPositiveBuyPrice() throws Exception {
         // given
         setAuth();

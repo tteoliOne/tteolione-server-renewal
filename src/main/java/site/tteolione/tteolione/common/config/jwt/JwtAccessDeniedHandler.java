@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.jwt;
+package site.tteolione.tteolione.common.config.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

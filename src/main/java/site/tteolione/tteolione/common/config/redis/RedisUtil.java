@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.redis;
+package site.tteolione.tteolione.common.config.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

@@ -87,7 +87,7 @@ class UserRepositoryTest extends IntegrationTestSupport {
         userRepository.saveAll(List.of(user1, user2, user3));
 
         //when
-        Optional<User> findUser_ = userRepository.findOneWithAuthoritiesByLoginId("test123");
+        Optional<User> findUser_ = userRepository.findByLoginId("test123");
         User findUser = findUser_.get();
 
         //then
@@ -165,7 +165,6 @@ class UserRepositoryTest extends IntegrationTestSupport {
                 .loginId(username)
                 .email(email)
                 .nickname(nickname)
-                .authorities(Collections.singleton(User.toRoleUserAuthority()))
                 .build();
     }
 }

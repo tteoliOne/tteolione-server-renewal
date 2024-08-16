@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.email;
+package site.tteolione.tteolione.common.config.email;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum EAuthority{
-    eRoleDisabledUser("ROLE_DISABLED_USER"),
-    eRoleUser("ROLE_USER"),
-    eWithdrawalUser("ROLE_WITHDRAW_USER");
+    ROLE_ADMIN("관리자 권한"),
+    ROLE_USER("유저 권한"),
+    ROLE_WITHDRAW_USER("탈퇴");
     private final String text;
 }

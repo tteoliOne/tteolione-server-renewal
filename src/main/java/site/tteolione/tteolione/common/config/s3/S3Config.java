@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.s3;
+package site.tteolione.tteolione.common.config.s3;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

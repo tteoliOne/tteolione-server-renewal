@@ -2,12 +2,9 @@ package site.tteolione.tteolione.api.service.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +13,11 @@ import site.tteolione.tteolione.api.service.user.response.LoginRes;
 import site.tteolione.tteolione.api.service.user.request.LoginServiceReq;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
 import site.tteolione.tteolione.client.s3.S3ImageService;
-import site.tteolione.tteolione.config.CustomUserDetails;
-import site.tteolione.tteolione.config.exception.Code;
-import site.tteolione.tteolione.config.exception.GeneralException;
-import site.tteolione.tteolione.config.jwt.TokenInfoRes;
-import site.tteolione.tteolione.config.jwt.TokenProvider;
-import site.tteolione.tteolione.config.redis.RedisUtil;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.jwt.TokenInfoRes;
+import site.tteolione.tteolione.common.config.jwt.TokenProvider;
+import site.tteolione.tteolione.common.config.redis.RedisUtil;
 import site.tteolione.tteolione.domain.mail.EmailAuth;
 import site.tteolione.tteolione.domain.mail.EmailAuthRepository;
 import site.tteolione.tteolione.domain.user.User;
@@ -34,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AuthService implements UserDetailsService {
+public class AuthService {
 
     private final EmailAuthRepository emailAuthRepository;
     private final UserRepository userRepository;
@@ -43,26 +39,11 @@ public class AuthService implements UserDetailsService {
     private final TokenProvider tokenProvider;
     private final RedisUtil redisUtil;
 
-    @Override
-    public UserDetails loadUserByUsername(final String loginId) {
-        return this.userRepository.findOneWithAuthoritiesByLoginId(loginId)
-                .map(user -> createUser(loginId, user))
-                .orElseThrow(() -> new UsernameNotFoundException(loginId + "유저 이름을 찾을 수 없습니다."));
-    }
-
-    private CustomUserDetails createUser(String username, User user) {
-        if (!user.isActivated()) throw new GeneralException("유저가 활성화되어 있지 않습니다.");
-        List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
-                .collect(Collectors.toList());
-        return new CustomUserDetails(user);
-    }
-
     /**
-     *  회원가입 서비스 로직
+     * 회원가입 서비스 로직
      */
     @Transactional
-    public User signUpUser(SignUpServiceReq request, MultipartFile profile)  {
+    public User signUpUser(SignUpServiceReq request, MultipartFile profile) {
         //이미 등록된 이메일 회원인지
         validateIsAlreadyEmailRegisteredUser(request.getEmail());
         //보낸 이메일이 인증되었는지 확인
@@ -100,7 +81,7 @@ public class AuthService implements UserDetailsService {
      */
     public LoginRes loginUser(LoginServiceReq request) {
         String loginId = request.getLoginId();
-        User user = userRepository.findOneWithAuthoritiesByLoginId(loginId)
+        User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_LOGIN_ID_PW));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -108,10 +89,10 @@ public class AuthService implements UserDetailsService {
         }
 
         List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
+                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
                 .collect(Collectors.toList());
         for (GrantedAuthority grantedAuthority : grantedAuthorities) {
-            if (grantedAuthority.getAuthority().equals(EAuthority.eWithdrawalUser.getText())) {
+            if (grantedAuthority.getAuthority().equals(EAuthority.ROLE_WITHDRAW_USER.name())) {
                 throw new GeneralException(Code.WITH_DRAW_USER);
             }
         }
@@ -123,17 +104,21 @@ public class AuthService implements UserDetailsService {
     }
 
     private TokenInfoRes createAndStoreToken(String loginId) {
-        UserDetails userDetails = loadUserByUsername(loginId);
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        User findUser = userRepository.findByLoginId(loginId)
+                .orElseThrow(IllegalStateException::new);
 
-        TokenInfoRes tokenInfoRes = tokenProvider.createToken(authenticationToken);
+        TokenInfoRes tokenInfoRes = tokenProvider.createToken2(findUser.getEmail(), findUser.getUserRole().name());
+
         redisUtil.setDataExpireMillis(
-                "RT:" + authenticationToken.getName(),
+                "RT:" + findUser.getEmail(),
                 tokenInfoRes.getRefreshToken(),
                 tokenInfoRes.getRefreshTokenExpirationTime()
         );
         return tokenInfoRes;
+    }
+
+    public Authentication getAuthentication(User user) {
+        return new UsernamePasswordAuthenticationToken(user, "",
+                List.of(new SimpleGrantedAuthority(user.getUserRole().name())));
     }
 }

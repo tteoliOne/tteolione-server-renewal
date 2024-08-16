@@ -16,7 +16,7 @@ import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.product.ProductService;
 import site.tteolione.tteolione.api.service.user.AuthService;
 import site.tteolione.tteolione.api.service.user.UserService;
-import site.tteolione.tteolione.config.redis.RedisUtil;
+import site.tteolione.tteolione.common.config.redis.RedisUtil;
 
 @ActiveProfiles({"test", "private"})
 @WebMvcTest(controllers = {

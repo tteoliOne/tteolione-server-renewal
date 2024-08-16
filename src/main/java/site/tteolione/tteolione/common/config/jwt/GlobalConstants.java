@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.jwt;
+package site.tteolione.tteolione.common.config.jwt;
 
 import lombok.Getter;
 

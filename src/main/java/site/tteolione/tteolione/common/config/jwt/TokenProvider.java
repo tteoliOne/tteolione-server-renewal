@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.jwt;
+package site.tteolione.tteolione.common.config.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -45,6 +45,30 @@ public class TokenProvider implements InitializingBean {
     public void afterPropertiesSet() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public TokenInfoRes createToken2(String email, String role) {
+
+        Claims claims = Jwts.claims().setSubject(email);
+        claims.put("role", role);
+
+        long now = (new Date()).getTime();
+        Date accessTokenValidity = new Date(now + this.accessTokenValidityTime);
+        Date refreshTokenValidity = new Date(now + this.refreshTokenValidityTime);
+        String accessToken = Jwts.builder()
+                .setClaims(claims)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(accessTokenValidity)
+                .compact();
+
+        String refreshToken = Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(refreshTokenValidity)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return TokenInfoRes.from("Bearer", accessToken, refreshToken, refreshTokenValidityTime);
+
     }
 
     public TokenInfoRes createToken(Authentication authentication) {
@@ -140,5 +164,15 @@ public class TokenProvider implements InitializingBean {
         Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody().getExpiration();
         Long now = new Date().getTime();
         return (expiration.getTime() - now);
+    }
+
+    // 토큰에서 Email을 추출한다.
+    public String getUid(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    // 토큰에서 ROLE(권한)만 추출한다.
+    public String getRole(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get("role", String.class);
     }
 }

@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import site.tteolione.tteolione.IntegrationTestSupport;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
 import site.tteolione.tteolione.client.s3.S3ImageService;
-import site.tteolione.tteolione.config.exception.Code;
-import site.tteolione.tteolione.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.domain.mail.EmailAuth;
 import site.tteolione.tteolione.domain.mail.EmailAuthRepository;
 import site.tteolione.tteolione.domain.user.User;
@@ -26,8 +26,6 @@ import site.tteolione.tteolione.domain.user.constants.ELoginType;
 
 import java.util.Collections;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 class AuthServiceTest extends IntegrationTestSupport {
@@ -81,7 +79,6 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .emailAuthChecked(true)
                 .loginType(ELoginType.eApp)
                 .activated(true)
-                .authorities(Collections.singleton(User.toRoleUserAuthority()))
                 .build();
 
         BDDMockito.when(emailAuthRepository.findByEmail("test123@naver.com")).thenReturn(Optional.of(emailAuth));

@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config;
+package site.tteolione.tteolione.common.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -10,10 +10,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import site.tteolione.tteolione.config.jwt.JwtAccessDeniedHandler;
-import site.tteolione.tteolione.config.jwt.JwtAuthenticationEntryPoint;
-import site.tteolione.tteolione.config.jwt.JwtFilter;
-import site.tteolione.tteolione.config.jwt.TokenProvider;
+import site.tteolione.tteolione.api.service.user.UserService;
+import site.tteolione.tteolione.common.config.jwt.JwtAccessDeniedHandler;
+import site.tteolione.tteolione.common.config.jwt.JwtAuthenticationEntryPoint;
+import site.tteolione.tteolione.common.config.jwt.JwtFilter;
+import site.tteolione.tteolione.common.config.jwt.TokenProvider;
 
 @Configuration
 @EnableWebSecurity
@@ -23,6 +24,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final UserService userService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,11 +39,6 @@ public class SecurityConfig {
                 .csrf((auth) -> auth
                         .ignoringRequestMatchers("/h2-console/**")
                         .disable());
-        http
-                .exceptionHandling((exceptionHandling) ->
-                        exceptionHandling
-                                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                                .accessDeniedHandler(jwtAccessDeniedHandler));
         //From 로그인 방식 disable
         http
                 .formLogin((auth) -> auth.disable());
@@ -59,7 +56,7 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/test").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/api/v2/email/**").permitAll()
@@ -67,11 +64,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/v2/auth/**").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-//                        .requestMatchers("/api/users/**").hasRole("MEMBER")
+                        .requestMatchers("/api/v2/products/**").hasRole("USER")
                         .anyRequest().authenticated());
 
         http
-                .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .exceptionHandling((exceptionHandling) ->
+                        exceptionHandling
+                                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                                .accessDeniedHandler(jwtAccessDeniedHandler));
+        http
+                .addFilterBefore(new JwtFilter(tokenProvider, userService), UsernamePasswordAuthenticationFilter.class);
 
         // 등등의 설정들 ...
 

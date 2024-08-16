@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import site.tteolione.tteolione.ControllerTestSupport;
 import site.tteolione.tteolione.api.controller.email.request.EmailAuthCodeReq;
 import site.tteolione.tteolione.api.controller.email.request.EmailSendReq;
-import site.tteolione.tteolione.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.Code;
 
 @WithMockUser
 class EmailControllerTest extends ControllerTestSupport {

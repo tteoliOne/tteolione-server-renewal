@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.exception;
+package site.tteolione.tteolione.common.config.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +59,7 @@ public enum Code {
     INVALID_FILE_EXTENTION(144, HttpStatus.BAD_REQUEST, "허용되지 않은 파일 확장자입니다.(jpg, jpeg, png, gif 허용)"),
     PUT_OBJECT_EXCEPTION(145, HttpStatus.BAD_REQUEST, "S3에 이미지를 업로드하는 동안 예외가 발생했습니다."),
     IO_EXCEPTION_ON_IMAGE_DELETE(145, HttpStatus.BAD_REQUEST, "이미지 삭제 중 입출력 예외가 발생했습니다."),
+    EXPIRED_ACCESS_TOKEN(146, HttpStatus.BAD_REQUEST, "액세스 토큰이 만료되었습니다."),
 
 
 

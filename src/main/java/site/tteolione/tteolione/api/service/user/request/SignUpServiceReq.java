@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import site.tteolione.tteolione.domain.mail.EmailAuth;
 import site.tteolione.tteolione.domain.user.User;
+import site.tteolione.tteolione.domain.user.constants.EAuthority;
 import site.tteolione.tteolione.domain.user.constants.ELoginType;
 
 import java.util.Collections;
@@ -44,7 +45,7 @@ public class SignUpServiceReq {
                 .emailAuthChecked(true)
                 .loginType(ELoginType.eApp)
                 .activated(true)
-                .authorities(Collections.singleton(User.toRoleUserAuthority()))
+                .userRole(EAuthority.ROLE_USER)
                 .build();
     }
 }

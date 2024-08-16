@@ -1,4 +1,4 @@
-package site.tteolione.tteolione.config.exception;
+package site.tteolione.tteolione.common.config.exception;
 
 import lombok.Getter;
 

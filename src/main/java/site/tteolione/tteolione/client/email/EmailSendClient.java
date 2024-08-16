@@ -10,7 +10,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
-import site.tteolione.tteolione.config.redis.RedisUtil;
+import site.tteolione.tteolione.common.config.redis.RedisUtil;
 
 import java.util.Random;
 
