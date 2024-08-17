@@ -11,12 +11,12 @@ import site.tteolione.tteolione.domain.user.User;
 public abstract class SecurityUtils {
 
     public static Long getUserId() {
-        log.debug("{} Authentication 유저 아이디", ((User)(SecurityContextHolder.getContext().getAuthentication().getPrincipal())).getUserId());
+        log.debug("{} Authentication 유저 아이디", ((SecurityUserDto)(SecurityContextHolder.getContext().getAuthentication().getPrincipal())).getUserId());
         return ((SecurityUserDto)(SecurityContextHolder.getContext().getAuthentication().getPrincipal())).getUserId();
     }
 
     public static SecurityUserDto getUser() {
-        log.debug("{} Authentication 유저", (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        log.debug("{} Authentication 유저", (SecurityUserDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return (SecurityUserDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

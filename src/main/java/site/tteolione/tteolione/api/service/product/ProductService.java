@@ -43,11 +43,11 @@ public class ProductService {
     private final LikesService likesService;
 
     @Transactional
-    public PostProductRes saveProduct(List<MultipartFile> photos, MultipartFile receipt, PostProductServiceReq request) {
+    public PostProductRes saveProduct(SecurityUserDto userDto, List<MultipartFile> photos, MultipartFile receipt, PostProductServiceReq request) {
         Category category = categoryService.findByCategoryId(request.getCategoryId());
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.findByLoginId(authentication.getName());
+        User user = userService.findById(userDto.getUserId());
+
         Product saveProduct = productRepository.save(request.toEntity(user, category));
 
         productFileService.saveImages(photos, saveProduct, EPhotoType.eProduct);
