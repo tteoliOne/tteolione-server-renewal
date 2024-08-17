@@ -1,13 +1,19 @@
 package site.tteolione.tteolione;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import site.tteolione.tteolione.api.controller.email.EmailController;
 import site.tteolione.tteolione.api.controller.product.ProductController;
 import site.tteolione.tteolione.api.controller.user.AuthController;
@@ -50,5 +56,19 @@ public abstract class ControllerTestSupport {
 
     @Mock
     protected Authentication authentication;
+
+    /**
+     * 403 forbidden 문제(csrf)
+     * https://velog.io/@shwncho/Spring-security-6-Controller-test-403-Forbidden-%EC%97%90%EB%9F%ACfeat.-csrf
+     */
+    @BeforeEach
+    public void setUp(WebApplicationContext webApplicationContext){
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .defaultRequest(MockMvcRequestBuilders.multipart("/api/v2/products").with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .defaultRequest(MockMvcRequestBuilders.get("/api/v2/products/simple").with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .build();
+    }
 
 }

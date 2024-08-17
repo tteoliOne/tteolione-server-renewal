@@ -27,11 +27,12 @@ public class ProductController {
      */
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponse<PostProductRes> createProduct(
+            @CurrentUser SecurityUserDto userDto,
             @RequestPart(value = "photos") List<MultipartFile> photos,
             @RequestPart(value = "receipt") MultipartFile receipt,
             @Valid @RequestPart(value = "request") PostProductReq request) {
 
-        PostProductRes postProductResponse = productService.saveProduct(photos, receipt, request.toServiceRequest());
+        PostProductRes postProductResponse = productService.saveProduct(userDto, photos, receipt, request.toServiceRequest());
         return BaseResponse.of(postProductResponse);
     }
 
