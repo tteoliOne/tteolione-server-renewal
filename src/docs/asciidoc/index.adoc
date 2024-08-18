@@ -9,8 +9,8 @@ endif::[]
 :toclevels: 2
 :sectlinks:
 
-[[AUTH-API]]
-== AUTH API
+[[Auth-API]]
+== Auth API
 
 include::api/user/auth.adoc[]
 
@@ -19,13 +19,13 @@ include::api/user/auth.adoc[]
 
 include::api/email/email.adoc[]
 
-[[USER-API]]
-== USER API
+[[User-API]]
+== User API
 
 include::api/user/user.adoc[]
 
-[[PRODUCT-API]]
-== PRODUCT API
+[[Product-API]]
+== Product API
 
 include::api/product/product.adoc[]
 

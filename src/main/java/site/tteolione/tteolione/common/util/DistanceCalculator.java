@@ -1,7 +1,7 @@
 package site.tteolione.tteolione.common.util;
 
 public class DistanceCalculator {
-    private static final int R = 6371; // 지구의 반지름 (킬로미터)
+    private static final int R = 6371000; // 지구의 반지름 (미터)
     private static final double WALKING_SPEED = 5.0; // 도보 속도 (킬로미터/시)
 
     // 경도와 위도를 기반으로 두 지점 간의 거리를 계산하는 메서드
