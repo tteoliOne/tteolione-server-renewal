@@ -107,7 +107,7 @@ public class AuthService {
         User findUser = userRepository.findByLoginId(loginId)
                 .orElseThrow(IllegalStateException::new);
 
-        TokenInfoRes tokenInfoRes = tokenProvider.createToken2(findUser.getEmail(), findUser.getUserRole().name());
+        TokenInfoRes tokenInfoRes = tokenProvider.createToken(findUser.getEmail(), findUser.getUserRole().name());
 
         redisUtil.setDataExpireMillis(
                 "RT:" + findUser.getEmail(),

@@ -1,31 +1,19 @@
 package site.tteolione.tteolione.common.config.jwt;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Base64;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class TokenProvider implements InitializingBean {
-
-
-    private static final String AUTHORITIES_KEY = "auth";
 
     private final String secret;
     private final long accessTokenValidityTime;
@@ -43,11 +31,11 @@ public class TokenProvider implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenInfoRes createToken2(String email, String role) {
+    public TokenInfoRes createToken(String email, String role) {
 
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
@@ -69,51 +57,6 @@ public class TokenProvider implements InitializingBean {
 
         return TokenInfoRes.from("Bearer", accessToken, refreshToken, refreshTokenValidityTime);
 
-    }
-
-    public TokenInfoRes createToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        long now = (new Date()).getTime();
-        Date accessTokenValidity = new Date(now + this.accessTokenValidityTime);
-        Date refreshTokenValidity = new Date(now + this.refreshTokenValidityTime);
-        String subject = getSubject(authentication);
-        String accessToken = Jwts.builder()
-                .setSubject(subject)
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(accessTokenValidity)
-                .compact();
-
-        String refreshToken = Jwts.builder()
-                .setExpiration(refreshTokenValidity)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-
-        return TokenInfoRes.from("Bearer", accessToken, refreshToken, refreshTokenValidityTime);
-
-    }
-
-    private String getSubject(Authentication authentication) {
-        if (authentication.getName().equals("email")) {
-            OAuth2AuthenticationToken auth = (OAuth2AuthenticationToken) authentication;
-            return (String) auth.getPrincipal().getAttributes().get("email");
-        }
-        return authentication.getName();
-    }
-
-    public Authentication getAuthentication(String token) {
-
-        Claims claims = parseClaims(token);
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-        User principal = new User(claims.getSubject(), "", authorities);
-
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
     public boolean validateToken(String token){
@@ -152,27 +95,13 @@ public class TokenProvider implements InitializingBean {
         }
     }
 
-    private Claims parseClaims(String accessToken) {
-        try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
-        }
-    }
-
-    public Long getExpiration(String accessToken) {
-        Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody().getExpiration();
-        Long now = new Date().getTime();
-        return (expiration.getTime() - now);
-    }
-
     // 토큰에서 Email을 추출한다.
     public String getUid(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
     }
 
     // 토큰에서 ROLE(권한)만 추출한다.
     public String getRole(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get("role", String.class);
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role", String.class);
     }
 }
