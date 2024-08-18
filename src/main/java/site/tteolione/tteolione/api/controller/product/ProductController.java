@@ -36,6 +36,9 @@ public class ProductController {
         return BaseResponse.of(postProductResponse);
     }
 
+    /**
+     * 상품 간단 조회(메인화면)
+     */
     @GetMapping("/simple")
     public BaseResponse<GetSimpleProductRes> getSimpleProducts(
             @CurrentUser SecurityUserDto userDto,
