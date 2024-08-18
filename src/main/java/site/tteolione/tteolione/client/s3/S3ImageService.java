@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import site.tteolione.tteolione.config.exception.Code;
-import site.tteolione.tteolione.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import site.tteolione.tteolione.domain.BaseEntity;
 import site.tteolione.tteolione.domain.category.Category;
 import site.tteolione.tteolione.domain.file.File;
 import site.tteolione.tteolione.domain.likes.Likes;
@@ -18,7 +19,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Product {
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +43,7 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private EProductSoldStatus soldStatus;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<File> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")

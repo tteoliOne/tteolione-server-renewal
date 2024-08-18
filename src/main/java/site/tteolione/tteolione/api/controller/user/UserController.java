@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
 import site.tteolione.tteolione.api.service.user.UserService;
-import site.tteolione.tteolione.config.exception.BaseResponse;
-import site.tteolione.tteolione.config.exception.Code;
-import site.tteolione.tteolione.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.exception.BaseResponse;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
 
 @Slf4j
 @RestController

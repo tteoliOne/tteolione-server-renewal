@@ -17,7 +17,7 @@ import site.tteolione.tteolione.api.controller.user.request.SignUpReq;
 import site.tteolione.tteolione.api.service.user.response.LoginRes;
 import site.tteolione.tteolione.api.service.user.request.LoginServiceReq;
 import site.tteolione.tteolione.api.service.user.request.SignUpServiceReq;
-import site.tteolione.tteolione.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.domain.user.User;
 
 class AuthControllerTest extends ControllerTestSupport {

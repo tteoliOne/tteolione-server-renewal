@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import site.tteolione.tteolione.config.jwt.TokenInfoRes;
+import site.tteolione.tteolione.common.config.jwt.TokenInfoRes;
 import site.tteolione.tteolione.domain.user.User;
 
 @Data

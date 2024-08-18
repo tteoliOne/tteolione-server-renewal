@@ -2,6 +2,8 @@ package site.tteolione.tteolione.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import site.tteolione.tteolione.domain.BaseEntity;
 import site.tteolione.tteolione.domain.user.constants.EAuthority;
 import site.tteolione.tteolione.domain.user.constants.ELoginType;
@@ -11,8 +13,9 @@ import java.util.*;
 @Entity
 @Getter
 @Table(name = "USERS")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity {
+@NoArgsConstructor
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,33 +40,11 @@ public class User extends BaseEntity {
     private String providerId;
     private boolean activated;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_authority",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "user_id")},
-            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
-    private Set<Authority> authorities;
-
-    public static Authority toRoleWithDrawUserAuthority() {
-        return Authority.builder()
-                .authorityName(EAuthority.eWithdrawalUser.getText())
-                .build();
-    }
-
-    public static Authority toRoleDisabledUserAuthority() {
-        return Authority.builder()
-                .authorityName(EAuthority.eRoleDisabledUser.getText())
-                .build();
-    }
-
-    public static Authority toRoleUserAuthority() {
-        return Authority.builder()
-                .authorityName(EAuthority.eRoleUser.getText())
-                .build();
-    }
+    @Enumerated(EnumType.STRING)
+    private EAuthority userRole;
 
     @Builder
-    public User(String loginId, String password, String username, String nickname, String intro, String profile, String targetToken, double ddabongScore, ELoginType loginType, String email, boolean emailAuthChecked, String providerId, boolean activated, Set<Authority> authorities) {
+    public User(String loginId, String password, String username, String nickname, String intro, String profile, String targetToken, double ddabongScore, ELoginType loginType, String email, boolean emailAuthChecked, String providerId, boolean activated, EAuthority userRole) {
         this.loginId = loginId;
         this.password = password;
         this.username = username;
@@ -77,10 +58,35 @@ public class User extends BaseEntity {
         this.emailAuthChecked = emailAuthChecked;
         this.providerId = providerId;
         this.activated = activated;
-        this.authorities = authorities;
+        this.userRole = userRole;
     }
 
     public void changeTargetToken(String targetToken) {
         this.targetToken = targetToken;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(() -> userRole.name());
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }

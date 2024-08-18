@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.tteolione.tteolione.client.email.EmailSendClient;
-import site.tteolione.tteolione.config.exception.Code;
-import site.tteolione.tteolione.config.exception.GeneralException;
-import site.tteolione.tteolione.config.redis.RedisUtil;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.redis.RedisUtil;
 import site.tteolione.tteolione.domain.mail.EmailAuth;
 import site.tteolione.tteolione.domain.mail.EmailAuthRepository;
 

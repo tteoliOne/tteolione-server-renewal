@@ -13,9 +13,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import site.tteolione.tteolione.ControllerTestSupport;
 import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
-import site.tteolione.tteolione.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.Code;
 
-import static org.junit.jupiter.api.Assertions.*;
 //참고문헌 https://velog.io/@jmjmjmz732002/Springboot-Junit5-%EC%BB%A8%ED%8A%B8%EB%A1%A4%EB%9F%AC-%ED%85%8C%EC%8A%A4%ED%8A%B8-401-%EC%97%90%EB%9F%AC%EB%A5%BC-%EB%A7%88%EC%A3%BC%EC%B3%A4%EB%8B%A4
 class UserControllerTest extends ControllerTestSupport {
 

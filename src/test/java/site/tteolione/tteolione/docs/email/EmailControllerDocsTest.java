@@ -13,7 +13,7 @@ import site.tteolione.tteolione.api.controller.email.EmailController;
 import site.tteolione.tteolione.api.controller.email.request.EmailAuthCodeReq;
 import site.tteolione.tteolione.api.controller.email.request.EmailSendReq;
 import site.tteolione.tteolione.api.service.email.EmailService;
-import site.tteolione.tteolione.config.redis.RedisUtil;
+import site.tteolione.tteolione.common.config.redis.RedisUtil;
 import site.tteolione.tteolione.docs.RestDocsSupport;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;

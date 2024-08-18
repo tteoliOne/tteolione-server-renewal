@@ -3,9 +3,22 @@
 
 ==== HTTP Request
 include::{snippets}/create-product/http-request.adoc[]
+include::{snippets}/create-product/request-headers.adoc[]
 include::{snippets}/create-product/request-parts.adoc[]
 include::{snippets}/create-product/request-part-request-fields.adoc[]
 
 ==== HTTP Response
 include::{snippets}/create-product/http-response.adoc[]
 include::{snippets}/create-product/response-fields.adoc[]
+
+[[simple-products]]
+=== 상품 간단 조회(메인화면) API
+
+==== HTTP Request
+include::{snippets}/simple-products/http-request.adoc[]
+include::{snippets}/simple-products/request-headers.adoc[]
+include::{snippets}/simple-products/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/simple-products/http-response.adoc[]
+include::{snippets}/simple-products/response-fields.adoc[]

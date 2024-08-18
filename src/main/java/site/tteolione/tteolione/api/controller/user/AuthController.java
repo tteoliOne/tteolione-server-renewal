@@ -10,7 +10,7 @@ import site.tteolione.tteolione.api.controller.user.request.LoginReq;
 import site.tteolione.tteolione.api.controller.user.request.SignUpReq;
 import site.tteolione.tteolione.api.service.user.response.LoginRes;
 import site.tteolione.tteolione.api.service.user.AuthService;
-import site.tteolione.tteolione.config.exception.BaseResponse;
+import site.tteolione.tteolione.common.config.exception.BaseResponse;
 
 @Slf4j
 @RestController

@@ -2,13 +2,12 @@ package site.tteolione.tteolione.api.service.user;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import site.tteolione.tteolione.IntegrationTestSupport;
-import site.tteolione.tteolione.config.exception.Code;
-import site.tteolione.tteolione.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
 
@@ -138,7 +137,6 @@ class UserServiceTest extends IntegrationTestSupport {
         return User.builder()
                 .loginId(username)
                 .email(email)
-                .authorities(Collections.singleton(User.toRoleUserAuthority()))
                 .build();
     }
 
@@ -147,7 +145,6 @@ class UserServiceTest extends IntegrationTestSupport {
                 .loginId(username)
                 .email(email)
                 .nickname(nickname)
-                .authorities(Collections.singleton(User.toRoleUserAuthority()))
                 .build();
     }
 
