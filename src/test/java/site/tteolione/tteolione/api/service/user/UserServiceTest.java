@@ -2,17 +2,28 @@ package site.tteolione.tteolione.api.service.user;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.util.ReflectionTestUtils;
 import site.tteolione.tteolione.IntegrationTestSupport;
+import site.tteolione.tteolione.WithMockCustomAccount;
+import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
+import site.tteolione.tteolione.common.util.SecurityUserDto;
+import site.tteolione.tteolione.common.util.SecurityUtils;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
+import site.tteolione.tteolione.domain.user.constants.EAuthority;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,6 +34,11 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private UserService userService;
+
+//    @BeforeEach
+//    void init() {
+//        userService = new UserService(userRepository);
+//    }
 
     @AfterEach
     void tearDown() {
@@ -132,6 +148,86 @@ class UserServiceTest extends IntegrationTestSupport {
         Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_EXISTS_USER);
     }
 
+    @DisplayName("회원의 닉네임 변경이 기존의 것과 일치하지 않고 다른 유저들의 것과 일치하지 않을 때 - 성공")
+    @Test
+    void changeNickname_Success() {
+        // given
+        String newNickname = "newNickname";
+
+        User user = createUser("test123", "test123@naver.com", "originNickname");
+        userRepository.save(user);
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(user.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeNicknameServiceReq request = ChangeNicknameServiceReq.builder()
+                .nickname(newNickname)
+                .build();
+
+        // when
+        userService.changeNickname(userDto, request);
+        User findUser = userRepository.findById(user.getUserId()).get();
+
+        // then
+        Assertions.assertThat(findUser.getNickname()).isEqualTo(newNickname);
+    }
+
+    @DisplayName("회원의 닉네임 변경이 기존의 것 일치할 때 예외처리 - 실패")
+    @Test
+    void changeNickname_EqualsToOriginNickname_True() {
+        // given
+        String newNickname = "originNickname";
+
+        User user = createUser("test123", "test123@naver.com", "originNickname");
+        userRepository.save(user);
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(user.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeNicknameServiceReq request = ChangeNicknameServiceReq.builder()
+                .nickname(newNickname)
+                .build();
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.changeNickname(userDto, request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.EQUALS_NICKNAME);
+    }
+
+    @DisplayName("변경할 닉네임이 다른 유저들의 것과 일치할 때 예외처 - 실패")
+    @Test
+    void changeNickname_ExistByNickname_True() {
+        // given
+        String user2Nickname = "user2Nickname";
+
+        User user1 = createUser("test123", "test123@naver.com", "originNickname");
+        User user2 = createUser("test123", "test123@naver.com", user2Nickname);
+        userRepository.saveAll(List.of(user1, user2));
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(user1.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeNicknameServiceReq request = ChangeNicknameServiceReq.builder()
+                .nickname(user2Nickname)
+                .build();
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.changeNickname(userDto, request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.EXIST_NICKNAME);
+    }
 
     private User createUser(String username, String email) {
         return User.builder()
