@@ -1,14 +1,11 @@
 package site.tteolione.tteolione.api.controller.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nimbusds.oauth2.sdk.GeneralException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -19,6 +16,7 @@ import site.tteolione.tteolione.api.controller.user.request.ChangeNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
 import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
 
@@ -182,7 +180,7 @@ class UserControllerTest extends ControllerTestSupport {
     @WithMockCustomAccount
     void changeNickname_Success() throws Exception {
         // given
-        String newNickname = "newNickname";
+        String newNickname = "새로운닉네임";
 
         ChangeNicknameReq request = ChangeNicknameReq.builder()
                 .nickname(newNickname)
@@ -243,7 +241,7 @@ class UserControllerTest extends ControllerTestSupport {
     @WithMockCustomAccount
     void changeNickname_Failure_EqualsToOriginNickname() throws Exception {
         // given
-        String newNickname = "newNickname";
+        String newNickname = "새로운닉네임";
 
         ChangeNicknameReq request = ChangeNicknameReq.builder()
                 .nickname(newNickname)
@@ -252,7 +250,7 @@ class UserControllerTest extends ControllerTestSupport {
         SecurityUserDto userDto = SecurityUtils.getUser();
 
         // when
-        BDDMockito.doThrow(new GeneralException(Code.EQUALS_NICKNAME.getMessage())).when(userService).changeNickname(userDto, request.toServiceRequest());
+        BDDMockito.doThrow(new GeneralException(Code.EQUALS_NICKNAME)).when(userService).changeNickname(userDto, request.toServiceRequest());
 
         // then
         mockMvc.perform(
@@ -264,8 +262,8 @@ class UserControllerTest extends ControllerTestSupport {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(Code.EQUALS_NICKNAME.getCode()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.EQUALS_NICKNAME.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(Code.EQUALS_NICKNAME.getMessage()));
     }
 
     @DisplayName("회원의 닉네임 변경이 다른 회원들의 것과 일치할 때- 실패")
@@ -273,7 +271,7 @@ class UserControllerTest extends ControllerTestSupport {
     @WithMockCustomAccount
     void changeNickname_Failure_ExistByNickname() throws Exception {
         // given
-        String newNickname = "newNickname";
+        String newNickname = "새로운닉네임";
 
         ChangeNicknameReq request = ChangeNicknameReq.builder()
                 .nickname(newNickname)
@@ -282,7 +280,7 @@ class UserControllerTest extends ControllerTestSupport {
         SecurityUserDto userDto = SecurityUtils.getUser();
 
         // when
-        BDDMockito.doThrow(new GeneralException(Code.EXIST_NICKNAME.getMessage())).when(userService).changeNickname(userDto, request.toServiceRequest());
+        BDDMockito.doThrow(new GeneralException(Code.EXIST_NICKNAME)).when(userService).changeNickname(userDto, request.toServiceRequest());
 
         // then
         mockMvc.perform(
@@ -294,7 +292,7 @@ class UserControllerTest extends ControllerTestSupport {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(Code.EXIST_NICKNAME.getCode()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.EXIST_NICKNAME.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(Code.EXIST_NICKNAME.getMessage()));
     }
 }
