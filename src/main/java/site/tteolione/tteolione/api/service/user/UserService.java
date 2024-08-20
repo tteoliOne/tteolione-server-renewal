@@ -3,8 +3,10 @@ package site.tteolione.tteolione.api.service.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
+import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
 
@@ -37,5 +39,25 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_USER));
+    }
+
+    @Transactional
+    public void changeNickname(SecurityUserDto userDto, ChangeNicknameServiceReq request) {
+        Long userId = userDto.getUserId();
+        User user = findById(userId);
+
+        String newNickname = request.nickname();
+
+        //로그인 회원의 기존 닉네임과 일치한지
+        if (user.getNickname().equals(newNickname)) {
+            throw new GeneralException(Code.EQUALS_NICKNAME);
+        }
+
+        //바꾸고자 하는 닉네임이 다른 회원들중에 존재하는지
+        if (existByNickname(newNickname)) {
+            throw new GeneralException(Code.EXIST_NICKNAME);
+        }
+
+        user.changeNickname(newNickname);
     }
 }

@@ -20,3 +20,16 @@ include::{snippets}/duplicate-nickname/request-fields.adoc[]
 include::{snippets}/duplicate-nickname/http-response.adoc[]
 include::{snippets}/duplicate-nickname/response-fields.adoc[]
 
+
+[[change-nickname]]
+=== 닉네임 변경 API
+
+==== HTTP Request
+include::{snippets}/change-nickname/http-request.adoc[]
+include::{snippets}/change-nickname/request-headers.adoc[]
+include::{snippets}/change-nickname/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/change-nickname/http-response.adoc[]
+include::{snippets}/change-nickname/response-fields.adoc[]
+

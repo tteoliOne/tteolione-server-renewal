@@ -65,6 +65,10 @@ public class User extends BaseEntity implements UserDetails {
         this.targetToken = targetToken;
     }
 
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(() -> userRole.name());
@@ -74,6 +78,7 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isAccountNonExpired() {
         return UserDetails.super.isAccountNonExpired();
     }
+
 
     @Override
     public boolean isAccountNonLocked() {
@@ -89,4 +94,5 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
 }
