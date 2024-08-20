@@ -42,6 +42,9 @@ public class UserController {
         return BaseResponse.of("사용가능한 닉네임입니다.");
     }
 
+    /**
+     * 닉네임 변경
+     */
     @PatchMapping("/nickname")
     public BaseResponse<String> changeNickname(
             @CurrentUser SecurityUserDto userDto,
