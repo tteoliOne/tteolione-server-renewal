@@ -76,6 +76,7 @@ public enum Code {
     BAD_REQUEST(400, HttpStatus.BAD_REQUEST, "Bad request"),
     VALIDATION_ERROR(400, HttpStatus.BAD_REQUEST, "Validation error"),
     NOT_FOUND(403, HttpStatus.NOT_FOUND, "Requested resource is not found"),
+    METHOD_NOT_ALLOWED(405, HttpStatus.METHOD_NOT_ALLOWED, "Method Not Allowed"),
 
     INTERNAL_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
     DATA_ACCESS_ERROR(20001, HttpStatus.INTERNAL_SERVER_ERROR, "Data access error"),
