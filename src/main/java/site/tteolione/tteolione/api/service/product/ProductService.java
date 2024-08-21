@@ -3,8 +3,6 @@ package site.tteolione.tteolione.api.service.product;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,10 +14,13 @@ import site.tteolione.tteolione.api.service.product.request.PostProductServiceRe
 import site.tteolione.tteolione.api.service.product.response.GetSimpleProductRes;
 import site.tteolione.tteolione.api.service.product.response.PostProductRes;
 import site.tteolione.tteolione.api.service.user.UserService;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.DistanceCalculator;
 import site.tteolione.tteolione.domain.category.Category;
 import site.tteolione.tteolione.domain.file.constants.EPhotoType;
+import site.tteolione.tteolione.domain.likes.Likes;
 import site.tteolione.tteolione.domain.likes.QLikes;
 import site.tteolione.tteolione.domain.product.Product;
 import site.tteolione.tteolione.domain.product.ProductRepository;
@@ -89,6 +90,34 @@ public class ProductService {
         return GetSimpleProductRes.from(categoryProductDtos);
     }
 
+    @Transactional
+    public String likeProduct(SecurityUserDto userDto, Long productId) {
+        Product product = findByIdWithLock(productId);
+        if (product == null) {
+            throw new GeneralException(Code.NOT_EXISTS_PRODUCT);
+        }
+
+        Long userId = userDto.getUserId();
+        User user = userService.findById(userId);
+
+        Likes findLike = likesService.findByProductAndUser(product, user);
+        if (findLike != null) {
+            //좋아요한 적이 있다면 좋아요 취소 처리
+            product.removeLike(findLike);
+            likesService.deleteByLike(findLike);
+            return "상품ID : " + productId + " 좋아요 취소 성공";
+        }
+        //좋아요한 적이 없다면 좋아요 추가 처리
+        Likes like = Likes.builder()
+                .user(user)
+                .product(product)
+                .build();
+        likesService.createLike(like);
+        product.addLike(like);
+        return "상품ID : " + productId + " 좋아요 추가 성공";
+
+    }
+
     private ProductDto createProductDto(Product product, Long likesCount, boolean likedValue, double walkingDistance, int walkingTime) {
         return ProductDto.builder()
                 .productId(product.getProductId())
@@ -102,4 +131,15 @@ public class ProductService {
                 .walkingTime(walkingTime)
                 .build();
     }
+
+    public Product findById(Long productId) {
+        return productRepository.findById(productId).orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_PRODUCT));
+    }
+
+    private Product findByIdWithLock(Long productId) {
+        //비관적 락(쓰기) - 데이터에 대한 읽기 및 쓰기를 다른 트랜잭션이 수행할 수 없도록 잠금
+        //상품 전체 좋아요 칼럼으로 인한 동시성 제어를 하기 위함
+        return productRepository.findByIdWithLock(productId);
+    }
+
 }
