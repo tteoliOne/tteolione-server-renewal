@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -26,6 +27,7 @@ import site.tteolione.tteolione.api.service.product.dto.ProductDto;
 import site.tteolione.tteolione.api.service.product.request.PostProductServiceReq;
 import site.tteolione.tteolione.api.service.product.response.GetSimpleProductRes;
 import site.tteolione.tteolione.api.service.product.response.PostProductRes;
+import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.docs.RestDocsSupport;
 import site.tteolione.tteolione.domain.product.constants.EProductSoldStatus;
@@ -249,6 +251,45 @@ public class ProductControllerDocsTest extends RestDocsSupport {
                                         .description("상품 판매 상태"),
                                 fieldWithPath("data.list[].products[].liked").type(JsonFieldType.BOOLEAN)
                                         .description("로그인 유저 해당 상품 좋아유 유무")
+                        )
+                ));
+    }
+
+    @DisplayName("상품 좋아요 추가/취소")
+    @Test
+    void likeProduct() throws Exception {
+        // given
+        Long productId = 1L;
+        String data = "상품ID : 1 좋아요 추가 성공";
+
+        BDDMockito.when(productService.likeProduct(Mockito.any(SecurityUserDto.class), Mockito.eq(productId)))
+                .thenReturn(data);
+
+        // when
+        // then
+        mockMvc.perform(RestDocumentationRequestBuilders.post("/api/v2/products/{productId}/likes", productId)
+                        .headers(GenerateMockToken.getToken())
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("like-products",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("accessToken")
+                        ),
+                        pathParameters(
+                                parameterWithName("productId").description("좋아요할 상품ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("성공유무"),
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드값"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(JsonFieldType.STRING)
+                                        .description("좋아요 추가/취소 성공결과")
                         )
                 ));
     }
