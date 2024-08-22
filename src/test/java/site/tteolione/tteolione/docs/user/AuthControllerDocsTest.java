@@ -6,6 +6,7 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -70,7 +71,7 @@ public class AuthControllerDocsTest extends RestDocsSupport {
                 .thenReturn(Mockito.mock(User.class));
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v2/auth/signup")
+        mockMvc.perform(RestDocumentationRequestBuilders.multipart("/api/v2/auth/signup")
                         .file(profile)
                         .file(signUpRequest)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -135,7 +136,7 @@ public class AuthControllerDocsTest extends RestDocsSupport {
 
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v2/auth/login")
+                        RestDocumentationRequestBuilders.post("/api/v2/auth/login")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )

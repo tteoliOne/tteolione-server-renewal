@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -44,7 +45,7 @@ public class EmailControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v2/email/send")
+                        RestDocumentationRequestBuilders.post("/api/v2/email/send")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -84,7 +85,7 @@ public class EmailControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v2/email/verify")
+                        RestDocumentationRequestBuilders.post("/api/v2/email/verify")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )

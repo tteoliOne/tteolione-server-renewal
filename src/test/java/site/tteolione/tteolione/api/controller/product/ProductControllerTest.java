@@ -278,7 +278,7 @@ public class ProductControllerTest extends ControllerTestSupport {
     @DisplayName("메인화면 상품 조회 통과 테스트")
     @Test
     @WithMockCustomAccount
-    void getSimpleProducts_Success() throws Exception{
+    void getSimpleProducts_Success() throws Exception {
         // given
         double longitude = 127.0;
         double latitude = 37.0;
@@ -305,10 +305,10 @@ public class ProductControllerTest extends ControllerTestSupport {
 
         GetSimpleProductRes response = GetSimpleProductRes.from(List.of(categoryDto1, categoryDto2));
         BDDMockito.when(productService.getSimpleProducts(
-                        Mockito.any(SecurityUserDto.class),
-                        ArgumentMatchers.eq(longitude),
-                        ArgumentMatchers.eq(latitude))
-                ).thenReturn(response);
+                Mockito.any(SecurityUserDto.class),
+                ArgumentMatchers.eq(longitude),
+                ArgumentMatchers.eq(latitude))
+        ).thenReturn(response);
 
         // when
         // then
@@ -335,6 +335,30 @@ public class ProductControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.list[1].products[0].productId").value(4L))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.list[1].products[1].productId").value(5L))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.list[1].products[2].productId").value(6L));
+    }
+
+    @DisplayName("상품 좋아요 추가/취소 통과 테스트")
+    @Test
+    @WithMockCustomAccount
+    void likeProduct() throws Exception {
+        // given
+        Long productId = 1L;
+        String data = "상품ID : 1 좋아요 추가 성공";
+
+        BDDMockito.when(productService.likeProduct(Mockito.any(SecurityUserDto.class), Mockito.eq(productId)))
+                .thenReturn(data);
+
+        // when
+        // then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v2/products/{productId}/likes", productId)
+                        .headers(GenerateMockToken.getToken())
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.OK.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Ok"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(data));
     }
 
     private MockMultipartFile createMultipart(String name, String originName) {

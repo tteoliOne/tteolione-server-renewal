@@ -34,43 +34,43 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-            String jwt = resolveToken(request);
-            String requestURI = request.getRequestURI();
-            try{
-                if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                    User findUser = userService.findByEmail(tokenProvider.getUid(jwt));
+        String jwt = resolveToken(request);
+        String requestURI = request.getRequestURI();
+        try {
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+                User findUser = userService.findByEmail(tokenProvider.getUid(jwt));
 
-                    SecurityUserDto userDto = SecurityUserDto.builder()
-                            .userId(findUser.getUserId())
-                            .email(findUser.getEmail())
-                            .userRole(findUser.getUserRole())
-                            .build();
+                SecurityUserDto userDto = SecurityUserDto.builder()
+                        .userId(findUser.getUserId())
+                        .email(findUser.getEmail())
+                        .userRole(findUser.getUserRole())
+                        .build();
 
-                    Authentication auth = getAuthentication(userDto);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                    log.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", auth.getPrincipal(), requestURI);
-                }}
-            catch (SecurityException | MalformedJwtException e) {
-                request.setAttribute("exception", ExceptionCode.WRONG_TYPE_TOKEN.getCode());
-            } catch (ExpiredJwtException e) {
-                request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getCode());
-            } catch (UnsupportedJwtException e) {
-                request.setAttribute("exception", ExceptionCode.UNSUPPORTED_TOKEN.getCode());
-            } catch (IllegalArgumentException e) {
-                request.setAttribute("exception", ExceptionCode.WRONG_TOKEN.getCode());
-            } catch (Exception e) {
-                log.error("================================================");
-                log.error("JwtFilter - doFilterInternal() 오류발생");
-                log.error("token : {}", jwt);
-                log.error("Exception Message : {}", e.getMessage());
-                log.error("Exception StackTrace : {");
-                e.printStackTrace();
-                log.error("}");
-                log.error("================================================");
-                request.setAttribute("exception", ExceptionCode.UNKNOWN_ERROR.getCode());
+                Authentication auth = getAuthentication(userDto);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                log.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", auth.getPrincipal(), requestURI);
             }
+        } catch (SecurityException | MalformedJwtException e) {
+            request.setAttribute("exception", ExceptionCode.WRONG_TYPE_TOKEN.getCode());
+        } catch (ExpiredJwtException e) {
+            request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getCode());
+        } catch (UnsupportedJwtException e) {
+            request.setAttribute("exception", ExceptionCode.UNSUPPORTED_TOKEN.getCode());
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("exception", ExceptionCode.WRONG_TOKEN.getCode());
+        } catch (Exception e) {
+            log.error("================================================");
+            log.error("JwtFilter - doFilterInternal() 오류발생");
+            log.error("token : {}", jwt);
+            log.error("Exception Message : {}", e.getMessage());
+            log.error("Exception StackTrace : {");
+            e.printStackTrace();
+            log.error("}");
+            log.error("================================================");
+            request.setAttribute("exception", ExceptionCode.UNKNOWN_ERROR.getCode());
+        }
 
-            filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {

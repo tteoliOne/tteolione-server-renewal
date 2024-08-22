@@ -48,4 +48,14 @@ public class ProductController {
         GetSimpleProductRes simpleProductRes = productService.getSimpleProducts(userDto, longitude, latitude);
         return BaseResponse.of(simpleProductRes);
     }
+
+    @PostMapping("/{productId}/likes")
+    public BaseResponse<String> likeProduct(
+            @CurrentUser SecurityUserDto userDto,
+            @PathVariable("productId") Long productId
+    ) {
+        String result = productService.likeProduct(userDto, productId);
+        return BaseResponse.of(result);
+
+    }
 }

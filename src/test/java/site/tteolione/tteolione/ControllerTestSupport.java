@@ -67,9 +67,10 @@ public abstract class ControllerTestSupport {
                 .webAppContextSetup(webApplicationContext)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .defaultRequest(MockMvcRequestBuilders.multipart("/api/v2/products").with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .defaultRequest(MockMvcRequestBuilders.get("/api/v2/products/simple").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .defaultRequest(MockMvcRequestBuilders.get("/api/v2/users/check/nickname").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .defaultRequest(MockMvcRequestBuilders.get("/api/v2/users/nickname").with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .defaultRequest(MockMvcRequestBuilders.post("/api/v2/products/**").with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .defaultRequest(MockMvcRequestBuilders.get("/api/v2/products/**").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .build();
     }
 

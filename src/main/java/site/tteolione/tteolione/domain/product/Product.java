@@ -34,7 +34,6 @@ public class Product extends BaseEntity {
 
     private int sharePrice;
     private int shareCount;
-    private int totalCount;
 
     private int likeCount;
     private double longitude;
@@ -58,7 +57,7 @@ public class Product extends BaseEntity {
     private Category category;
 
     @Builder
-    public Product(String title, String content, int buyPrice, int buyCount, LocalDateTime buyDate, int sharePrice, int shareCount, int totalCount, int likeCount, double longitude, double latitude, EProductSoldStatus soldStatus, List<File> images, List<Likes> likes, User user, Category category) {
+    public Product(String title, String content, int buyPrice, int buyCount, LocalDateTime buyDate, int sharePrice, int shareCount, int likeCount, double longitude, double latitude, EProductSoldStatus soldStatus, List<File> images, List<Likes> likes, User user, Category category) {
         this.title = title;
         this.content = content;
         this.buyPrice = buyPrice;
@@ -66,7 +65,6 @@ public class Product extends BaseEntity {
         this.buyDate = buyDate;
         this.sharePrice = sharePrice;
         this.shareCount = shareCount;
-        this.totalCount = totalCount;
         this.likeCount = likeCount;
         this.longitude = longitude;
         this.latitude = latitude;
@@ -76,4 +74,20 @@ public class Product extends BaseEntity {
         this.user = user;
         this.category = category;
     }
+
+    //== 연관관계 메서드 ==//
+
+    public void removeLike(Likes like) {
+        this.likes.remove(like);
+        like.removeLike();
+        this.likeCount -= 1;
+    }
+
+    public void addLike(Likes like) {
+        this.likes.add(like);
+        like.addLike(this);
+        this.likeCount += 1;
+    }
+
+
 }
