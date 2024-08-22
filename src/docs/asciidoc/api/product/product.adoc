@@ -22,3 +22,15 @@ include::{snippets}/simple-products/query-parameters.adoc[]
 ==== HTTP Response
 include::{snippets}/simple-products/http-response.adoc[]
 include::{snippets}/simple-products/response-fields.adoc[]
+
+[[like-products]]
+=== 상품 좋아요 추가/취소 API
+
+==== HTTP Request
+include::{snippets}/like-products/http-request.adoc[]
+include::{snippets}/like-products/request-headers.adoc[]
+include::{snippets}/like-products/path-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/like-products/http-response.adoc[]
+include::{snippets}/like-products/response-fields.adoc[]
