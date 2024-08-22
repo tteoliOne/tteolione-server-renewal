@@ -37,14 +37,13 @@ public class User extends BaseEntity implements UserDetails {
 
     private String email;
     private boolean emailAuthChecked;
-    private String providerId;
     private boolean activated;
 
     @Enumerated(EnumType.STRING)
     private EAuthority userRole;
 
     @Builder
-    public User(String loginId, String password, String username, String nickname, String intro, String profile, String targetToken, double ddabongScore, ELoginType loginType, String email, boolean emailAuthChecked, String providerId, boolean activated, EAuthority userRole) {
+    public User(String loginId, String password, String username, String nickname, String intro, String profile, String targetToken, double ddabongScore, ELoginType loginType, String email, boolean emailAuthChecked, boolean activated, EAuthority userRole) {
         this.loginId = loginId;
         this.password = password;
         this.username = username;
@@ -56,7 +55,6 @@ public class User extends BaseEntity implements UserDetails {
         this.loginType = loginType;
         this.email = email;
         this.emailAuthChecked = emailAuthChecked;
-        this.providerId = providerId;
         this.activated = activated;
         this.userRole = userRole;
     }
