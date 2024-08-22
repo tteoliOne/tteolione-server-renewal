@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface LikesRepository extends JpaRepository<Likes, Long> {
 
     Optional<Likes> findByProductAndUser(Product product, User user);
+
+    Long countByProduct(Product product);
 }

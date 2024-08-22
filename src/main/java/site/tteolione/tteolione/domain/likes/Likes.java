@@ -25,9 +25,6 @@ public class Likes {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Version
-    private Long version;
-
     @Builder
     public Likes(Product product, User user) {
         this.product = product;

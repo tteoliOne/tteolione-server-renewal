@@ -24,6 +24,7 @@ import site.tteolione.tteolione.common.util.SecurityUtils;
 import site.tteolione.tteolione.domain.category.Category;
 import site.tteolione.tteolione.domain.file.File;
 import site.tteolione.tteolione.domain.file.constants.EPhotoType;
+import site.tteolione.tteolione.domain.likes.LikesRepository;
 import site.tteolione.tteolione.domain.likes.QLikes;
 import site.tteolione.tteolione.domain.product.Product;
 import site.tteolione.tteolione.domain.product.ProductRepository;
@@ -57,8 +58,14 @@ class ProductLikeTest extends IntegrationTestSupport {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private LikesRepository likesRepository;
+
     @AfterEach
     void tearDown() {
+        likesRepository.deleteAllInBatch();
+        productRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
     @DisplayName("상품 좋아요 동시성 테스트")
@@ -115,8 +122,12 @@ class ProductLikeTest extends IntegrationTestSupport {
 
         // 결과 검증
         System.out.println("findProduct.getLikeCount() = " + findProduct.getLikeCount());
-//        Assertions.assertThat(failCount.get()).isEqualTo(0); // 실패한 스레드 수 확인
-        Assertions.assertThat(findProduct.getLikeCount()).isEqualTo(10 - failCount.get()); // 좋아요 카운트 확인
+        System.out.println("failCount.get() = " + failCount.get());
+        Long totalLikeCount = likesRepository.countByProduct(product);
+        Assertions.assertThat(totalLikeCount).isEqualTo(findProduct.getLikeCount());
+
+        int expectedLikeCount = 10; // 모든 사용자가 좋아요를 눌렀을 경우
+        Assertions.assertThat(findProduct.getLikeCount()).isEqualTo(expectedLikeCount - failCount.get()); // 좋아요 카운트 확인
 
     }
 
