@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.headers.HeaderDocumentation;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -53,7 +54,7 @@ public class UserControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v2/users/check/login-id")
+                        RestDocumentationRequestBuilders.post("/api/v2/users/check/login-id")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -92,7 +93,7 @@ public class UserControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v2/users/check/nickname")
+                        RestDocumentationRequestBuilders.post("/api/v2/users/check/nickname")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -135,7 +136,7 @@ public class UserControllerDocsTest extends RestDocsSupport {
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.patch("/api/v2/users/nickname")
+                        RestDocumentationRequestBuilders.patch("/api/v2/users/nickname")
                                 .content(objectMapper.writeValueAsString(request))
                                 .headers(GenerateMockToken.getToken())
                                 .contentType(MediaType.APPLICATION_JSON)

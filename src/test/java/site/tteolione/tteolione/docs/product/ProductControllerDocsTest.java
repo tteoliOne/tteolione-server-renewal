@@ -99,7 +99,7 @@ public class ProductControllerDocsTest extends RestDocsSupport {
                         Mockito.any(PostProductServiceReq.class)))
                 .thenReturn(response);
         // then
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v2/products")
+        mockMvc.perform(RestDocumentationRequestBuilders.multipart("/api/v2/products")
                         .file(photo1)
                         .file(photo2)
                         .file(photo3)
@@ -198,7 +198,7 @@ public class ProductControllerDocsTest extends RestDocsSupport {
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v2/products/simple")
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/api/v2/products/simple")
                         .param("longitude", String.valueOf(longitude))
                         .param("latitude", String.valueOf(latitude))
                         .headers(GenerateMockToken.getToken())
