@@ -17,6 +17,7 @@ import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
+import site.tteolione.tteolione.domain.product.ProductRepository;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
 import site.tteolione.tteolione.domain.user.constants.EAuthority;
@@ -35,6 +36,11 @@ class UserServiceTest extends IntegrationTestSupport {
     @Autowired
     private UserService userService;
 
+//    @Autowired
+//    private LikesRepository likesRepository;
+//
+//    @Autowired
+    private ProductRepository productRepository;
 //    @BeforeEach
 //    void init() {
 //        userService = new UserService(userRepository);
@@ -42,6 +48,8 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @AfterEach
     void tearDown() {
+//        likesRepository.deleteAllInBatch();
+//        productRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
 
@@ -139,9 +147,11 @@ class UserServiceTest extends IntegrationTestSupport {
         User user3 = createUser("test1235", "test12345@naver.com");
         userRepository.saveAll(List.of(user1, user2, user3));
 
+        long nonExistentUserId = user3.getUserId() + 1;
+
         // when
         GeneralException exp = assertThrows(GeneralException.class, () -> {
-            userService.findById(4L);
+            userService.findById(nonExistentUserId);
         });
 
         // then
