@@ -75,6 +75,7 @@ public class OAuth2Service {
         return LoginRes.fromKakao(tokenInfoRes, userInfo, user);
     }
 
+    @Transactional
     public LoginRes signUpKakao(MultipartFile profile, OAuth2KakaoServiceReq request) {
 
         // Kakao 사용자 정보 가져오기

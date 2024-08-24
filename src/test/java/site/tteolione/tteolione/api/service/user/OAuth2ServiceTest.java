@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.web.multipart.MultipartFile;
 import site.tteolione.tteolione.IntegrationTestSupport;
 import site.tteolione.tteolione.api.service.user.request.OAuth2KakaoServiceReq;
 import site.tteolione.tteolione.api.service.user.response.LoginRes;
@@ -39,6 +40,9 @@ class OAuth2ServiceTest extends IntegrationTestSupport {
 
     @MockBean
     private KakaoAuthClient kakaoAuthClient;
+
+    @MockBean
+    private S3ImageService s3ImageService;
 
     @Autowired
     private OAuth2Service oAuth2Service;
@@ -149,6 +153,75 @@ class OAuth2ServiceTest extends IntegrationTestSupport {
                 .hasMessage(Code.WITH_DRAW_USER.getMessage());
     }
 
+    @DisplayName("존재하지 않는 유저일때 - 카카오로 회원가입")
+    @Test
+    void signUpKakao_Not_Exist_User() {
+        // given
+        String accessToken = "accessToken";
+        String targetToken = "targetToken";
+        String nickname = "test123";
+        String email = "test123@naver.com";
+
+        KakaoUserInfoRes kakaoUserInfoRes = createKakaoUserInfoRes(nickname, email);
+        MultipartFile profile = Mockito.mock(MultipartFile.class);
+
+
+        BDDMockito.when(kakaoAuthClient.getUserInfo("Bearer " + accessToken)).thenReturn(kakaoUserInfoRes);
+        BDDMockito.when(s3ImageService.upload(profile)).thenReturn("1.jpg");
+
+        OAuth2KakaoServiceReq request = OAuth2KakaoServiceReq.builder()
+                .accessToken(accessToken)
+                .targetToken(targetToken)
+                .build();
+
+
+        // when
+        LoginRes loginRes = oAuth2Service.signUpKakao(profile, request);
+
+        // then
+        Assertions.assertThat(loginRes.isExistsUser()).isTrue();
+        Assertions.assertThat(loginRes.getAccessToken()).isNotNull();
+        Assertions.assertThat(loginRes.getRefreshToken()).isNotNull();
+        Assertions.assertThat(loginRes.getAppleRefreshToken()).isNull();
+    }
+
+    @DisplayName("카카오 로그인 - 탈퇴한 회원일 경우 예외처리")
+    @Test
+    void signUpKakao_Exist_User() {
+        // given
+        String accessToken = "accessToken";
+        String targetToken = "targetToken";
+        String nickname = "test123";
+        String email = "test123@naver.com";
+        String loginId = "test123@naver.com";
+
+        User user = User.builder()
+                .loginType(ELoginType.eKakao)
+                .loginId(loginId)
+                .email(email)
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+        userRepository.save(user);
+
+        OAuth2KakaoServiceReq request = OAuth2KakaoServiceReq.builder()
+                .accessToken(accessToken)
+                .targetToken(targetToken)
+                .build();
+
+        KakaoUserInfoRes kakaoInfoRes = createKakaoUserInfoRes(nickname, email);
+        MultipartFile profile = Mockito.mock(MultipartFile.class);
+
+
+        BDDMockito.when(kakaoAuthClient.getUserInfo("Bearer " + accessToken)).thenReturn(kakaoInfoRes);
+
+        // when
+        // then
+        Assertions.assertThatThrownBy(() -> oAuth2Service.signUpKakao(profile, request))
+                .isInstanceOf(GeneralException.class)
+                .hasMessage(Code.EXISTS_USER.getMessage());
+    }
+
+
     private KakaoUserInfoRes createKakaoUserInfoRes(String nickname, String email) {
         Profile profile = Profile.builder()
                 .nickname(nickname)
@@ -170,4 +243,5 @@ class OAuth2ServiceTest extends IntegrationTestSupport {
                 .kakaoAccount(kakaoAccount)
                 .build();
     }
+
 }
