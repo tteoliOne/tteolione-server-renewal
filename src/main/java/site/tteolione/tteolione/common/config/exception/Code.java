@@ -23,6 +23,7 @@ public enum Code {
     NOT_EXISTS_AUTHCODE(108, HttpStatus.BAD_REQUEST, "인증코드를 찾을 수 없습니다."),
     VALIDATION_AUTHCODE(109, HttpStatus.BAD_REQUEST, "인증코드 유효한 시간인 5분을 초과했습니다."),
     NOT_EXISTS_LOGIN_ID_PW(110, HttpStatus.BAD_REQUEST, "아이디나 비밀번호를 다시 확인해주세요."),
+    NOT_EXISTS_LOGIN_ID(110, HttpStatus.BAD_REQUEST, "아이디를 다시 확인해주세요."),
     DISABLED_USER(111, HttpStatus.BAD_REQUEST, "비활성화 유저입니다."),
     VALIDATION_REFRESH_TOKEN(112, HttpStatus.BAD_REQUEST, "유효하지 않은 Refresh Token입니다."),
     WRONG_REFRESH_TOKEN(113, HttpStatus.BAD_REQUEST, "잘못된 Refresh Token입니다."),

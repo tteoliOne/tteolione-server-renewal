@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import site.tteolione.tteolione.common.config.jwt.TokenInfoRes;
 import site.tteolione.tteolione.domain.user.User;
 
+import java.util.HashMap;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -30,6 +32,16 @@ public class LoginRes {
                 .accessToken(tokenInfoRes.getAccessToken())
                 .refreshToken(tokenInfoRes.getRefreshToken())
                 .nickname(user.getNickname())
+                .build();
+    }
+
+    public static LoginRes fromKakao(TokenInfoRes tokenInfoRes, HashMap<String, Object> userInfo, User user) {
+        return LoginRes.builder()
+                .existsUser(user != null)
+                .userId(user == null ? null : user.getUserId())
+                .accessToken(tokenInfoRes == null ? null : tokenInfoRes.getAccessToken())
+                .refreshToken(tokenInfoRes == null ? null : tokenInfoRes.getRefreshToken())
+                .nickname(userInfo == null ? null : user.getNickname())
                 .build();
     }
 

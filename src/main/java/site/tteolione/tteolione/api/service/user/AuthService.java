@@ -105,7 +105,7 @@ public class AuthService {
 
     private TokenInfoRes createAndStoreToken(String loginId) {
         User findUser = userRepository.findByLoginId(loginId)
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_LOGIN_ID));
 
         TokenInfoRes tokenInfoRes = tokenProvider.createToken(findUser.getEmail(), findUser.getUserRole().name());
 
