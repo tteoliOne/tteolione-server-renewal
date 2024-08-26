@@ -8,6 +8,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,5 +43,12 @@ public class GlobalExceptionHandler {
     public ResponseDto handleMissingPathVariableException(MissingPathVariableException ex) {
         String variableName = ex.getVariableName();
         return ResponseDto.of(false, Code.BAD_REQUEST, "필수 경로 변수 '" + variableName + "'가 누락되었습니다.");
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseDto handleMissingServletRequestPartException(MissingServletRequestPartException ex) {
+        String partName = ex.getRequestPartName();
+        return ResponseDto.of(false, Code.BAD_REQUEST, "필수 요청 파트 '" + partName + "'가 누락되었습니다.");
     }
 }
