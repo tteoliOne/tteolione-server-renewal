@@ -112,6 +112,29 @@ class OAuth2ControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.appleRefreshToken").doesNotExist());
     }
 
+    @DisplayName("카카오 액세스 토큰 null로 올때 유효성 검사 실패")
+    @Test
+    @WithMockCustomAccount
+    void kakaoLogin_Failure_Validate_KakaoAccessToken() throws Exception {
+        //given
+        OAuth2KakaoReq request = OAuth2KakaoReq.builder()
+                .accessToken(null)
+                .targetToken(null)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v2/auth/kakao")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("카카오의 accessToken을 입력해 주세요."));
+    }
+
 
     @Test
     void kakaoSignup() {
