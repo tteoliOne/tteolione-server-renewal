@@ -17,10 +17,12 @@ import org.springframework.web.context.WebApplicationContext;
 import site.tteolione.tteolione.api.controller.email.EmailController;
 import site.tteolione.tteolione.api.controller.product.ProductController;
 import site.tteolione.tteolione.api.controller.user.AuthController;
+import site.tteolione.tteolione.api.controller.user.OAuth2Controller;
 import site.tteolione.tteolione.api.controller.user.UserController;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.product.ProductService;
 import site.tteolione.tteolione.api.service.user.AuthService;
+import site.tteolione.tteolione.api.service.user.OAuth2Service;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.common.config.redis.RedisUtil;
 
@@ -29,7 +31,8 @@ import site.tteolione.tteolione.common.config.redis.RedisUtil;
         UserController.class,
         EmailController.class,
         AuthController.class,
-        ProductController.class
+        ProductController.class,
+        OAuth2Controller.class
 })
 public abstract class ControllerTestSupport {
 
@@ -54,8 +57,8 @@ public abstract class ControllerTestSupport {
     @MockBean
     protected ProductService productService;
 
-    @Mock
-    protected Authentication authentication;
+    @MockBean
+    protected OAuth2Service oAuth2Service;
 
     /**
      * 403 forbidden 문제(csrf)
@@ -69,6 +72,8 @@ public abstract class ControllerTestSupport {
                 .defaultRequest(MockMvcRequestBuilders.multipart("/api/v2/products").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .defaultRequest(MockMvcRequestBuilders.get("/api/v2/users/check/nickname").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .defaultRequest(MockMvcRequestBuilders.get("/api/v2/users/nickname").with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .defaultRequest(MockMvcRequestBuilders.post("/api/v2/auth/kakao").with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .defaultRequest(MockMvcRequestBuilders.post("/api/v2/auth/kakao/profile").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .defaultRequest(MockMvcRequestBuilders.post("/api/v2/products/**").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .defaultRequest(MockMvcRequestBuilders.get("/api/v2/products/**").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .build();

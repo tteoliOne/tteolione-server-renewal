@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import site.tteolione.tteolione.IntegrationTestSupport;
+import site.tteolione.tteolione.domain.user.constants.ELoginType;
 
 import java.util.Collections;
 import java.util.List;
@@ -160,11 +161,37 @@ class UserRepositoryTest extends IntegrationTestSupport {
         Assertions.assertThat(result).isTrue();
     }
 
+    @DisplayName("로그인 타입과 이메일이 일치하는 유저 확인")
+    @Test
+    void findByEmailAndLoginType() {
+        // given
+        String findEmail = "test123@naver.com";
+        User user1 = createUser("appUser", findEmail, ELoginType.eApp);
+        User user2 = createUser("kakaoUser", findEmail, ELoginType.eKakao);
+        userRepository.saveAll(List.of(user1, user2));
+
+        // when
+        User findUser = userRepository.findByEmailAndLoginType(findEmail, ELoginType.eKakao).get();
+
+        // then
+        Assertions.assertThat(findUser).isEqualTo(user2);
+        Assertions.assertThat(findUser.getEmail()).isEqualTo(findEmail);
+        Assertions.assertThat(findUser.getLoginType()).isEqualTo(ELoginType.eKakao);
+    }
+
     private User createUser(String username, String email, String nickname) {
         return User.builder()
                 .loginId(username)
                 .email(email)
                 .nickname(nickname)
+                .build();
+    }
+
+    private User createUser(String username, String email, ELoginType loginType) {
+        return User.builder()
+                .loginId(username)
+                .email(email)
+                .loginType(loginType)
                 .build();
     }
 }
