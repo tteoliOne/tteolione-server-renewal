@@ -35,13 +35,13 @@ public class LoginRes {
                 .build();
     }
 
-    public static LoginRes fromKakao(TokenInfoRes tokenInfoRes, HashMap<String, Object> userInfo, User user) {
+    public static LoginRes fromKakao(TokenInfoRes tokenInfoRes, User user) {
         return LoginRes.builder()
                 .existsUser(user != null)
                 .userId(user == null ? null : user.getUserId())
                 .accessToken(tokenInfoRes == null ? null : tokenInfoRes.getAccessToken())
                 .refreshToken(tokenInfoRes == null ? null : tokenInfoRes.getRefreshToken())
-                .nickname(userInfo == null ? null : user.getNickname())
+                .nickname(user == null ? null : user.getNickname())
                 .build();
     }
 

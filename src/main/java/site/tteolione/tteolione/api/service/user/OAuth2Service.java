@@ -52,7 +52,7 @@ public class OAuth2Service {
 
         //사용자가 존재하지 않을 경우
         if (optionalUser.isEmpty()) {
-            return LoginRes.fromKakao(null, null, null);
+            return LoginRes.fromKakao(null, null);
         }
 
         User user = optionalUser.get();
@@ -72,7 +72,7 @@ public class OAuth2Service {
 
         // 토큰 생성 및 저장
         TokenInfoRes tokenInfoRes = createAndStoreToken(user);
-        return LoginRes.fromKakao(tokenInfoRes, userInfo, user);
+        return LoginRes.fromKakao(tokenInfoRes, user);
     }
 
     @Transactional
@@ -108,7 +108,7 @@ public class OAuth2Service {
 
         // 토큰 생성 및 저장
         TokenInfoRes tokenInfoRes = createAndStoreToken(user);
-        return LoginRes.fromKakao(tokenInfoRes, userInfo, user);
+        return LoginRes.fromKakao(tokenInfoRes, user);
     }
 
     private String createNickname() {
