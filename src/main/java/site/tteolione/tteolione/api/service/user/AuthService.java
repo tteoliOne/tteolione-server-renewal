@@ -50,6 +50,11 @@ public class AuthService {
         EmailAuth emailAuth = validateEmailAuth(request.getEmail());
         String saveProfile = s3ImageService.upload(profile);
 
+
+        if (userRepository.existsByLoginId(request.getLoginId())) {
+            throw new GeneralException(Code.EXISTS_LOGIN_ID);
+        }
+
         User saveUser = userRepository.save(request.toEntity(passwordEncoder, saveProfile));
 
         //회원가입이 끝난 후 인증된 메일 삭제
