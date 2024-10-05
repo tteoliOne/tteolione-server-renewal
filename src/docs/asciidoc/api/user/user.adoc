@@ -33,3 +33,14 @@ include::{snippets}/change-nickname/request-fields.adoc[]
 include::{snippets}/change-nickname/http-response.adoc[]
 include::{snippets}/change-nickname/response-fields.adoc[]
 
+[[find-loginId]]
+=== 아이디 찾기 API
+
+==== HTTP Request
+include::{snippets}/find-loginId/http-request.adoc[]
+include::{snippets}/find-loginId/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/find-loginId/http-response.adoc[]
+include::{snippets}/find-loginId/response-fields.adoc[]
+
