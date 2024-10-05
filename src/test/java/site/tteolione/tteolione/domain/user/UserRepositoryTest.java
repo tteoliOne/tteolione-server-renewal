@@ -179,6 +179,24 @@ class UserRepositoryTest extends IntegrationTestSupport {
         Assertions.assertThat(findUser.getLoginType()).isEqualTo(ELoginType.eKakao);
     }
 
+    @DisplayName("이름과 이메일이 일치하는 유저 확인")
+    @Test
+    void findByUsernameAndEmail() {
+        // given
+        String username = "테스터";
+        String email = "test123@naver.com";
+        User saveUser = createUser(username, email);
+        userRepository.save(saveUser);
+
+        // when
+        User findUser = userRepository.findByUsernameAndEmail(username, email).get();
+
+        // then
+        Assertions.assertThat(findUser).isEqualTo(saveUser);
+        Assertions.assertThat(findUser.getUsername()).isEqualTo(username);
+        Assertions.assertThat(findUser.getEmail()).isEqualTo(email);
+    }
+
     private User createUser(String username, String email, String nickname) {
         return User.builder()
                 .loginId(username)
@@ -192,6 +210,13 @@ class UserRepositoryTest extends IntegrationTestSupport {
                 .loginId(username)
                 .email(email)
                 .loginType(loginType)
+                .build();
+    }
+
+    private User createUser(String username, String email) {
+        return User.builder()
+                .username(username)
+                .email(email)
                 .build();
     }
 }

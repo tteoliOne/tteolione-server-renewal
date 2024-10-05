@@ -19,7 +19,9 @@ import site.tteolione.tteolione.api.controller.user.UserController;
 import site.tteolione.tteolione.api.controller.user.request.ChangeNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
 import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
+import site.tteolione.tteolione.api.controller.user.request.FindLoginIdReq;
 import site.tteolione.tteolione.api.service.user.UserService;
+import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
 import site.tteolione.tteolione.docs.RestDocsSupport;
@@ -152,6 +154,50 @@ public class UserControllerDocsTest extends RestDocsSupport {
                         requestFields(
                                 fieldWithPath("nickname").type(JsonFieldType.STRING)
                                         .description("닉네임(2글자이상 6글자이하)")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("성공유무"),
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드값"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(JsonFieldType.STRING)
+                                        .description("데이터"))
+                ));
+    }
+
+    @DisplayName("아이디 찾기 API")
+    @Test
+    void findLoginId() throws Exception {
+        // given
+        String username = "테스터";
+        String email = "test123@naver.com";
+        FindLoginIdReq request = FindLoginIdReq.builder()
+                .username(username)
+                .email(email)
+                .build();
+
+        BDDMockito.when(userService.findLoginId(Mockito.any(FindServiceLoginIdReq.class)))
+                .thenReturn("이메일 인증코드 발송에 성공했습니다.");
+
+        // when
+        // then
+        mockMvc.perform(
+                        RestDocumentationRequestBuilders.post("/api/v2/users/find/login-id")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("find-loginId",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("username").type(JsonFieldType.STRING)
+                                        .description("이름"),
+                                fieldWithPath("email").type(JsonFieldType.STRING)
+                                        .description("이메일")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN)

@@ -1,11 +1,16 @@
 package site.tteolione.tteolione.api.service.user;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
+import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.common.config.exception.BaseResponse;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.redis.RedisUtil;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
@@ -16,6 +21,8 @@ import site.tteolione.tteolione.domain.user.UserRepository;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final RedisUtil redisUtil;
 
     public boolean duplicateLoginId(String loginId) {
         if (userRepository.existsByLoginId(loginId)) {
@@ -59,5 +66,24 @@ public class UserService {
         }
 
         user.changeNickname(newNickname);
+    }
+
+    public String findLoginId(FindServiceLoginIdReq request) throws MessagingException {
+        User findUser = userRepository.findByUsernameAndEmail(request.getUsername(), request.getEmail())
+                .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
+
+        switch (findUser.getLoginType()) {
+            case eKakao -> throw new GeneralException(Code.FOUND_KAKAO_USER);
+            case eGoogle -> throw new GeneralException(Code.FOUND_GOOGLE_USER);
+            case eNaver -> throw new GeneralException(Code.FOUND_NAVER_USER);
+            case eApple -> throw new GeneralException(Code.FOUND_APPLE_USER);
+        }
+
+        boolean result = emailService.sendEmail(request.getEmail());
+        if (result) {
+            return "이메일 인증코드 발송에 성공했습니다.";
+        }
+        return "이메일 인증코드 발송에 실패했습니다.";
+
     }
 }
