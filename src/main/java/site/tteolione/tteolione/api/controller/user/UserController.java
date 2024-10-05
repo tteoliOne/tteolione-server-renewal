@@ -56,6 +56,9 @@ public class UserController {
         return BaseResponse.of("정상적으로 닉네임이 변경되었습니다.");
     }
 
+    /**
+     * 아이디 찾기
+     */
     @PostMapping("/find/login-id")
     public BaseResponse<String> findLoginId(@Valid @RequestBody FindLoginIdReq request) throws MessagingException {
         return BaseResponse.of(userService.findLoginId(request.toServiceRequest()));
