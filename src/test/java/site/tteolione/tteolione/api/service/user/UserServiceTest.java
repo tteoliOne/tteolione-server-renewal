@@ -1,26 +1,33 @@
 package site.tteolione.tteolione.api.service.user;
 
+import jakarta.mail.MessagingException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
 import site.tteolione.tteolione.IntegrationTestSupport;
 import site.tteolione.tteolione.WithMockCustomAccount;
+import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
+import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
+import site.tteolione.tteolione.common.config.redis.RedisUtil;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
 import site.tteolione.tteolione.domain.product.ProductRepository;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
 import site.tteolione.tteolione.domain.user.constants.EAuthority;
+import site.tteolione.tteolione.domain.user.constants.ELoginType;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,20 +43,14 @@ class UserServiceTest extends IntegrationTestSupport {
     @Autowired
     private UserService userService;
 
-//    @Autowired
-//    private LikesRepository likesRepository;
-//
-//    @Autowired
-    private ProductRepository productRepository;
-//    @BeforeEach
-//    void init() {
-//        userService = new UserService(userRepository);
-//    }
+    @MockBean
+    private EmailService emailService;
+
+    @MockBean
+    private RedisUtil redisUtil;
 
     @AfterEach
     void tearDown() {
-//        likesRepository.deleteAllInBatch();
-//        productRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
 
@@ -239,18 +240,100 @@ class UserServiceTest extends IntegrationTestSupport {
         Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.EXIST_NICKNAME);
     }
 
-    private User createUser(String username, String email) {
+    @DisplayName("아이디찾기시 회원의 유저네임과 이메일이 일치하면 이메일 인증번호 전송 - 성공")
+    @Test
+    void findLoginId_Success() throws MessagingException {
+        // given
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        User saveUser = createUserWithUsernameAndEmailAndLoginType(username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        FindServiceLoginIdReq request = FindServiceLoginIdReq.builder()
+                .username(username)
+                .email(email)
+                .build();
+
+        // 이메일 발송 성공하도록 설정
+        BDDMockito.when(emailService.sendEmail(email)).thenReturn(true);
+
+        // when
+        String result = userService.findLoginId(request);
+
+        // then
+        Assertions.assertThat(result).isEqualTo("이메일 인증코드 발송에 성공했습니다.");
+    }
+
+    @DisplayName("아이디 찾기시 회원 유저네임 또는 이메일이 틀릴 때 예외처리  - 실패")
+    @Test
+    void findLoginId_NotExistByUser() throws MessagingException {
+        // given
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String testEmail = "test12345@naver.com";
+
+        User saveUser = createUserWithUsernameAndEmailAndLoginType(username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        FindServiceLoginIdReq request = FindServiceLoginIdReq.builder()
+                .username(username)
+                .email(testEmail)
+                .build();
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.findLoginId(request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
+    }
+
+    @DisplayName("아이디 찾기시 앱 자체 로그인 회원이 아닐 때 예외처리 - 실패")
+    @Test
+    void findLoginId_NotEqualsEApp() throws MessagingException {
+        // given
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        User saveUser = createUserWithUsernameAndEmailAndLoginType(username, email, ELoginType.eKakao);
+        userRepository.save(saveUser);
+
+        FindServiceLoginIdReq request = FindServiceLoginIdReq.builder()
+                .username(username)
+                .email(email)
+                .build();
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.findLoginId(request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.FOUND_KAKAO_USER);
+    }
+
+    private User createUser(String loginId, String email) {
         return User.builder()
-                .loginId(username)
+                .loginId(loginId)
                 .email(email)
                 .build();
     }
 
-    private User createUser(String username, String email, String nickname) {
+    private User createUser(String loginId, String email, String nickname) {
         return User.builder()
-                .loginId(username)
+                .loginId(loginId)
                 .email(email)
                 .nickname(nickname)
+                .build();
+    }
+
+    private User createUserWithUsernameAndEmailAndLoginType(String username, String email, ELoginType loginType) {
+        return User.builder()
+                .username(username)
+                .email(email)
+                .loginType(loginType)
                 .build();
     }
 
