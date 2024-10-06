@@ -44,3 +44,13 @@ include::{snippets}/find-loginId/request-fields.adoc[]
 include::{snippets}/find-loginId/http-response.adoc[]
 include::{snippets}/find-loginId/response-fields.adoc[]
 
+[[verify-loginId]]
+=== 아이디 찾기 검증 API
+
+==== HTTP Request
+include::{snippets}/verify-loginId/http-request.adoc[]
+include::{snippets}/verify-loginId/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/verify-loginId/http-response.adoc[]
+include::{snippets}/verify-loginId/response-fields.adoc[]
