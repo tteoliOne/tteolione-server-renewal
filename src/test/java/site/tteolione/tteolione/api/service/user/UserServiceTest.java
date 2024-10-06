@@ -3,39 +3,27 @@ package site.tteolione.tteolione.api.service.user;
 import jakarta.mail.MessagingException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.util.ReflectionTestUtils;
 import site.tteolione.tteolione.IntegrationTestSupport;
-import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
-import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdResponse;
+import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.config.redis.RedisUtil;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
-import site.tteolione.tteolione.common.util.SecurityUtils;
-import site.tteolione.tteolione.domain.mail.EmailAuth;
-import site.tteolione.tteolione.domain.product.ProductRepository;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
 import site.tteolione.tteolione.domain.user.constants.EAuthority;
 import site.tteolione.tteolione.domain.user.constants.ELoginType;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -340,7 +328,7 @@ class UserServiceTest extends IntegrationTestSupport {
         BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(true);
 
         // when
-        VerifyLoginIdResponse response = userService.verifyLoginId(request);
+        VerifyLoginIdRes response = userService.verifyLoginId(request);
         redisUtil.deleteData("code:" + email);
 
         // then

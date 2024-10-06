@@ -8,8 +8,7 @@ import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
-import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdResponse;
-import site.tteolione.tteolione.common.config.exception.BaseResponse;
+import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.config.redis.RedisUtil;
@@ -89,7 +88,7 @@ public class UserService {
 
     }
 
-    public VerifyLoginIdResponse verifyLoginId(VerifyServiceLoginIdReq request) {
+    public VerifyLoginIdRes verifyLoginId(VerifyServiceLoginIdReq request) {
         String codeFoundByEmail = redisUtil.getData("code:" + request.getEmail());
         boolean isVerify = emailService.verifyEmailCode(request.getEmail(), request.getAuthCode(), codeFoundByEmail);
         if (!isVerify) {
@@ -97,6 +96,6 @@ public class UserService {
         }
         User findUser = userRepository.findByUsernameAndEmail(request.getUsername(), request.getEmail())
                 .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
-        return VerifyLoginIdResponse.from(findUser.getLoginId());
+        return VerifyLoginIdRes.from(findUser.getLoginId());
     }
 }

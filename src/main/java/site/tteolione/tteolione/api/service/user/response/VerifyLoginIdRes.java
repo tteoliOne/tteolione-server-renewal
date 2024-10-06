@@ -6,17 +6,17 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class VerifyLoginIdResponse {
+public class VerifyLoginIdRes {
 
     private String loginId;
 
     @Builder
-    public VerifyLoginIdResponse(String loginId) {
+    public VerifyLoginIdRes(String loginId) {
         this.loginId = loginId;
     }
 
-    public static VerifyLoginIdResponse from(String loginId) {
-        return VerifyLoginIdResponse.builder()
+    public static VerifyLoginIdRes from(String loginId) {
+        return VerifyLoginIdRes.builder()
                 .loginId(loginId)
                 .build();
     }
