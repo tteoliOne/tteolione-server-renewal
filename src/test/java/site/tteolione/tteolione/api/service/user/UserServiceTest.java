@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -18,11 +19,14 @@ import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdResponse;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.config.redis.RedisUtil;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
+import site.tteolione.tteolione.domain.mail.EmailAuth;
 import site.tteolione.tteolione.domain.product.ProductRepository;
 import site.tteolione.tteolione.domain.user.User;
 import site.tteolione.tteolione.domain.user.UserRepository;
@@ -32,6 +36,7 @@ import site.tteolione.tteolione.domain.user.constants.ELoginType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,7 +51,7 @@ class UserServiceTest extends IntegrationTestSupport {
     @MockBean
     private EmailService emailService;
 
-    @MockBean
+    @Autowired
     private RedisUtil redisUtil;
 
     @AfterEach
@@ -314,6 +319,97 @@ class UserServiceTest extends IntegrationTestSupport {
         Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.FOUND_KAKAO_USER);
     }
 
+    @DisplayName("아이디 찾기 검증 시 이메일 검증 번호 인증 성공이면 유저의 loginId 반환 - 성공")
+    @Test
+    void verifyLoginId_Success() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = createCode();
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        VerifyServiceLoginIdReq request = VerifyServiceLoginIdReq.builder()
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        redisUtil.setDataExpire("code:" + email, authCode, 60 * 5L);
+        BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(true);
+
+        // when
+        VerifyLoginIdResponse response = userService.verifyLoginId(request);
+        redisUtil.deleteData("code:" + email);
+
+        // then
+        Assertions.assertThat(response.getLoginId()).isEqualTo(loginId);
+    }
+
+    @DisplayName("아이디 찾기 검증 시 이메일 검증 번호가 틀리면 예외처리 - 실패")
+    @Test
+    void verifyLoginId_NotEqualsAuthCode() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = createCode();
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        VerifyServiceLoginIdReq request = VerifyServiceLoginIdReq.builder()
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        redisUtil.setDataExpire("code:" + email, authCode, 60 * 5L);
+        BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(false);
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.verifyLoginId(request);
+        });
+
+        redisUtil.deleteData("code:" + email);
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.VERIFY_EMAIL_CODE);
+    }
+
+    @DisplayName("아이디 찾기 검증 시 이메일 검증 번호는 맞지만 유저네임이 틀리면 예외처리 - 실패")
+    @Test
+    void verifyLoginId_NotEquals_Username_Or_Email() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = createCode();
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        String notEqualsUsername = "틀린테스터명";
+        VerifyServiceLoginIdReq request = VerifyServiceLoginIdReq.builder()
+                .username(notEqualsUsername)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        redisUtil.setDataExpire("code:" + email, authCode, 60 * 5L);
+        BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(true);
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.verifyLoginId(request);
+        });
+
+        redisUtil.deleteData("code:" + email);
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
+    }
+
     private User createUser(String loginId, String email) {
         return User.builder()
                 .loginId(loginId)
@@ -335,6 +431,30 @@ class UserServiceTest extends IntegrationTestSupport {
                 .email(email)
                 .loginType(loginType)
                 .build();
+    }
+
+    private User createUserWithLoginIdAndUsernameAndEmailAndLoginType(String loginId, String username, String email, ELoginType loginType) {
+        return User.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .loginType(loginType)
+                .build();
+    }
+
+    private String createCode() {
+        Random random = new Random();
+        String authCode = "";
+
+        for (int i = 0; i < 3; i++) {
+            int index = random.nextInt(25) + 65;
+            authCode += (char) index;
+        }
+
+        int numIndex = random.nextInt(9000) + 1000;
+        authCode += numIndex;
+
+        return authCode;
     }
 
 }

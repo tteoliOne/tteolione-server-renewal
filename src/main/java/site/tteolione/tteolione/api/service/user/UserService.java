@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdResponse;
 import site.tteolione.tteolione.common.config.exception.BaseResponse;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
@@ -85,5 +87,16 @@ public class UserService {
         }
         return "이메일 인증코드 발송에 실패했습니다.";
 
+    }
+
+    public VerifyLoginIdResponse verifyLoginId(VerifyServiceLoginIdReq request) {
+        String codeFoundByEmail = redisUtil.getData("code:" + request.getEmail());
+        boolean isVerify = emailService.verifyEmailCode(request.getEmail(), request.getAuthCode(), codeFoundByEmail);
+        if (!isVerify) {
+            throw new GeneralException(Code.VERIFY_EMAIL_CODE);
+        }
+        User findUser = userRepository.findByUsernameAndEmail(request.getUsername(), request.getEmail())
+                .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
+        return VerifyLoginIdResponse.from(findUser.getLoginId());
     }
 }
