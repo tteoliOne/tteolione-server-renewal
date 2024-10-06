@@ -62,6 +62,9 @@ public class UserController {
         return BaseResponse.of(userService.findLoginId(request.toServiceRequest()));
     }
 
+    /**
+     * 아이디 찾기 검증
+     */
     @PostMapping("/verify/login-id")
     public BaseResponse<VerifyLoginIdRes> verifyLoginId(@Valid @RequestBody VerifyLoginIdReq request) {
         return BaseResponse.of(userService.verifyLoginId(request.toServiceRequest()));
