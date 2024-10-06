@@ -5,11 +5,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import site.tteolione.tteolione.api.controller.user.request.ChangeNicknameReq;
-import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
-import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
-import site.tteolione.tteolione.api.controller.user.request.FindLoginIdReq;
+import site.tteolione.tteolione.api.controller.user.request.*;
 import site.tteolione.tteolione.api.service.user.UserService;
+import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.BaseResponse;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
@@ -62,5 +60,13 @@ public class UserController {
     @PostMapping("/find/login-id")
     public BaseResponse<String> findLoginId(@Valid @RequestBody FindLoginIdReq request) throws MessagingException {
         return BaseResponse.of(userService.findLoginId(request.toServiceRequest()));
+    }
+
+    /**
+     * 아이디 찾기 검증
+     */
+    @PostMapping("/verify/login-id")
+    public BaseResponse<VerifyLoginIdRes> verifyLoginId(@Valid @RequestBody VerifyLoginIdReq request) {
+        return BaseResponse.of(userService.verifyLoginId(request.toServiceRequest()));
     }
 }

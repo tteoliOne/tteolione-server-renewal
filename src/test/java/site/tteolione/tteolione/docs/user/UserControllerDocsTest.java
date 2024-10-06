@@ -16,12 +16,11 @@ import site.tteolione.tteolione.GenerateMockToken;
 import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.controller.email.request.EmailSendReq;
 import site.tteolione.tteolione.api.controller.user.UserController;
-import site.tteolione.tteolione.api.controller.user.request.ChangeNicknameReq;
-import site.tteolione.tteolione.api.controller.user.request.DupNicknameReq;
-import site.tteolione.tteolione.api.controller.user.request.DuplicateLoginIdReq;
-import site.tteolione.tteolione.api.controller.user.request.FindLoginIdReq;
+import site.tteolione.tteolione.api.controller.user.request.*;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
 import site.tteolione.tteolione.docs.RestDocsSupport;
@@ -208,6 +207,60 @@ public class UserControllerDocsTest extends RestDocsSupport {
                                         .description("메시지"),
                                 fieldWithPath("data").type(JsonFieldType.STRING)
                                         .description("데이터"))
+                ));
+    }
+
+    @DisplayName("아이디 찾기 검증 API")
+    @Test
+    void verifyLoginId() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = "test123";
+
+        VerifyLoginIdReq request = VerifyLoginIdReq.builder()
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        VerifyLoginIdRes response = VerifyLoginIdRes.from(loginId);
+
+        BDDMockito.when(userService.verifyLoginId(Mockito.any(VerifyServiceLoginIdReq.class)))
+                .thenReturn(response);
+
+        // then
+        mockMvc.perform(
+                        RestDocumentationRequestBuilders.post("/api/v2/users/verify/login-id")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("verify-loginId",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("username").type(JsonFieldType.STRING)
+                                        .description("이름"),
+                                fieldWithPath("email").type(JsonFieldType.STRING)
+                                        .description("이메일"),
+                                fieldWithPath("authCode").type(JsonFieldType.STRING)
+                                        .description("인증번호")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("성공유무"),
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드값"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(JsonFieldType.OBJECT)
+                                        .description("데이터"),
+                                fieldWithPath("data.loginId").type(JsonFieldType.STRING)
+                                        .description("사용자 로그인 ID"))
                 ));
     }
 }
