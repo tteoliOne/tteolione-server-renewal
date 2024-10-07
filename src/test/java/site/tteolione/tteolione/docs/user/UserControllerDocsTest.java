@@ -19,6 +19,7 @@ import site.tteolione.tteolione.api.controller.user.UserController;
 import site.tteolione.tteolione.api.controller.user.request.*;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
@@ -261,6 +262,55 @@ public class UserControllerDocsTest extends RestDocsSupport {
                                         .description("데이터"),
                                 fieldWithPath("data.loginId").type(JsonFieldType.STRING)
                                         .description("사용자 로그인 ID"))
+                ));
+    }
+
+    @DisplayName("비밀번호 찾기 API")
+    @Test
+    void findPassword() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        FindPasswordReq request = FindPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        BDDMockito.when(userService.findPassword(Mockito.any(FindServicePasswordReq.class)))
+                .thenReturn("이메일 인증코드 발송에 성공했습니다.");
+
+        // when
+        // then
+        mockMvc.perform(
+                        RestDocumentationRequestBuilders.post("/api/v2/users/find/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("find-password",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("loginId").type(JsonFieldType.STRING)
+                                        .description("로그인 ID"),
+                                fieldWithPath("username").type(JsonFieldType.STRING)
+                                        .description("이름"),
+                                fieldWithPath("email").type(JsonFieldType.STRING)
+                                        .description("이메일")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("성공유무"),
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드값"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(JsonFieldType.STRING)
+                                        .description("데이터"))
                 ));
     }
 }
