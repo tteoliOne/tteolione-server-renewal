@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
@@ -97,5 +98,23 @@ public class UserService {
         User findUser = userRepository.findByUsernameAndEmail(request.getUsername(), request.getEmail())
                 .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
         return VerifyLoginIdRes.from(findUser.getLoginId());
+    }
+
+    public String findPassword(FindServicePasswordReq request) throws MessagingException {
+        User findUser = userRepository.findByUsernameAndEmailAndLoginId(request.getUsername(), request.getEmail(), request.getLoginId())
+                .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
+
+        switch (findUser.getLoginType()) {
+            case eKakao -> throw new GeneralException(Code.FOUND_KAKAO_USER);
+            case eGoogle -> throw new GeneralException(Code.FOUND_GOOGLE_USER);
+            case eNaver -> throw new GeneralException(Code.FOUND_NAVER_USER);
+            case eApple -> throw new GeneralException(Code.FOUND_APPLE_USER);
+        }
+
+        boolean result = emailService.sendEmail(request.getEmail());
+        if (result) {
+            return "이메일 인증코드 발송에 성공했습니다.";
+        }
+        return "이메일 인증코드 발송에 실패했습니다.";
     }
 }

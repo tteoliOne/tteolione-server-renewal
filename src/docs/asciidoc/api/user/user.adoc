@@ -54,3 +54,14 @@ include::{snippets}/verify-loginId/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/verify-loginId/http-response.adoc[]
 include::{snippets}/verify-loginId/response-fields.adoc[]
+
+[[find-password]]
+=== 비밀번호 찾기 API
+
+==== HTTP Request
+include::{snippets}/find-password/http-request.adoc[]
+include::{snippets}/find-password/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/find-password/http-response.adoc[]
+include::{snippets}/find-password/response-fields.adoc[]

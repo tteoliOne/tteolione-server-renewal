@@ -12,6 +12,7 @@ import site.tteolione.tteolione.IntegrationTestSupport;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
@@ -260,7 +261,7 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @DisplayName("아이디 찾기시 회원 유저네임 또는 이메일이 틀릴 때 예외처리  - 실패")
     @Test
-    void findLoginId_NotExistByUser() throws MessagingException {
+    void findLoginId_NotExistByUser() {
         // given
         String username = "테스터";
         String email = "test123@naver.com";
@@ -285,7 +286,7 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @DisplayName("아이디 찾기시 앱 자체 로그인 회원이 아닐 때 예외처리 - 실패")
     @Test
-    void findLoginId_NotEqualsEApp() throws MessagingException {
+    void findLoginId_NotEqualsEApp() {
         // given
         String username = "테스터";
         String email = "test123@naver.com";
@@ -393,6 +394,86 @@ class UserServiceTest extends IntegrationTestSupport {
         });
 
         redisUtil.deleteData("code:" + email);
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
+    }
+
+    @DisplayName("비밀번호 찾기 시 회원의 로그인Id, 유저네임, 이메일이 일치하면 이메일 인증번호 전송 - 성공")
+    @Test
+    void findPassword_Success() throws MessagingException {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        FindServicePasswordReq request = FindServicePasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        // 이메일 발송 성공하도록 설정
+        BDDMockito.when(emailService.sendEmail(email)).thenReturn(true);
+
+        // when
+        String result = userService.findPassword(request);
+
+        // then
+        Assertions.assertThat(result).isEqualTo("이메일 인증코드 발송에 성공했습니다.");
+    }
+
+    @DisplayName("비밀번호 찾기 시 앱 자체 로그인 회원이 아닐 때 예외처리 - 실패")
+    @Test
+    void findPassword_NotEquals_EApp() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eKakao);
+        userRepository.save(saveUser);
+
+        FindServicePasswordReq request = FindServicePasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.findPassword(request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.FOUND_KAKAO_USER);
+    }
+
+    @DisplayName("비밀번호 찾기 시 로그인 Id, 유저네임, 이메일이 일치하지 않을 때 예외처리 - 실패")
+    @Test
+    void findPassword_NotExistBy_User() {
+        // given
+        String loginId = "test123";
+        String notExistByLoginId = "noMatch12";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        FindServicePasswordReq request = FindServicePasswordReq.builder()
+                .loginId(notExistByLoginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.findPassword(request);
+        });
 
         // then
         Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
