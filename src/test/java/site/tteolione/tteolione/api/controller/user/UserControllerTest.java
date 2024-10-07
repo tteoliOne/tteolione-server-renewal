@@ -14,6 +14,7 @@ import site.tteolione.tteolione.GenerateMockToken;
 import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.controller.user.request.*;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
@@ -328,7 +329,7 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("이메일 인증코드 발송에 성공했습니다."));
     }
 
-    @DisplayName("아이디 찾기시 유저네임 빈 문자열 예외처리- 성공")
+    @DisplayName("아이디 찾기시 유저네임 빈 문자열 예외처리 - 실패")
     @Test
     @WithMockCustomAccount
     void findLoginId_Failure_EmptyUsername() throws Exception {
@@ -355,7 +356,7 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("회원님의 이름을 적어주세요."));
     }
 
-    @DisplayName("아이디 찾기시 이메일 빈 문자열 예외처리- 성공")
+    @DisplayName("아이디 찾기시 이메일 빈 문자열 예외처리 - 실패")
     @Test
     @WithMockCustomAccount
     void findLoginId_Failure_EmptyEmail() throws Exception {
@@ -382,7 +383,7 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("회원님의 이메일을 적어주세요."));
     }
 
-    @DisplayName("아이디 찾기시 이메일 빈 문자열 예외처리- 성공")
+    @DisplayName("아이디 찾기시 이메일 빈 문자열 예외처리 - 실패")
     @Test
     @WithMockCustomAccount
     void findLoginId_Failure_RegexEmail() throws Exception {
@@ -522,6 +523,126 @@ class UserControllerTest extends ControllerTestSupport {
         //then
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/v2/users/verify/login-id")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("이메일 형식이 맞지 않습니다."));
+    }
+
+    @DisplayName("비밀번호 찾기 - 성공")
+    @Test
+    @WithMockCustomAccount
+    void findPassword_Success() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        FindPasswordReq request = FindPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        // when
+        BDDMockito.when(userService.findPassword(Mockito.any(FindServicePasswordReq.class)))
+                .thenReturn("이메일 인증코드 발송에 성공했습니다.");
+
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/find/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.OK.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Ok"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("이메일 인증코드 발송에 성공했습니다."));
+    }
+
+    @DisplayName("비밀번호 찾기 시 로그인Id regex 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void findPassword_Failure_Regex_LoginId() throws Exception {
+        // given
+        String loginId = "";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        FindPasswordReq request = FindPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        // when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/find/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("id는 소문자 하나이상있어야하고, 6자~20자여야합니다."));
+    }
+
+    @DisplayName("비밀번호 찾기시 유저네임 빈 문자열 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void findPassword_Failure_EmptyUsername() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "";
+        String email = "test123@naver.com";
+
+        FindPasswordReq request = FindPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        // when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/find/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("회원님의 이름을 적어주세요."));
+    }
+
+    @DisplayName("아이디 찾기시 이메일 regex 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void findPassword_Failure_RegexEmail() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123123";
+
+        FindPasswordReq request = FindPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .build();
+
+        // when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/find/password")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
