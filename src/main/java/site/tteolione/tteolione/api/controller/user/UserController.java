@@ -77,4 +77,12 @@ public class UserController {
     public BaseResponse<String> findPassword(@Valid @RequestBody FindPasswordReq request) throws MessagingException {
         return BaseResponse.of(userService.findPassword(request.toServiceRequest()));
     }
+
+    /**
+     * 비밀번호 찾기 검증
+     */
+    @PostMapping("/verify/password")
+    public BaseResponse<String> verifyPassword(@Valid @RequestBody VerifyPasswordReq request) {
+        return BaseResponse.of(userService.verifyPassword(request.toServiceRequest()));
+    }
 }

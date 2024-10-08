@@ -65,3 +65,14 @@ include::{snippets}/find-password/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/find-password/http-response.adoc[]
 include::{snippets}/find-password/response-fields.adoc[]
+
+[[verify-password]]
+=== 비밀번호 찾기 검증 API
+
+==== HTTP Request
+include::{snippets}/verify-password/http-request.adoc[]
+include::{snippets}/verify-password/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/verify-password/http-response.adoc[]
+include::{snippets}/verify-password/response-fields.adoc[]

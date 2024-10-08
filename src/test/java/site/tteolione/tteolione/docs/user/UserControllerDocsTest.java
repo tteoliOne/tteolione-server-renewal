@@ -21,6 +21,7 @@ import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.VerifyServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
@@ -301,6 +302,61 @@ public class UserControllerDocsTest extends RestDocsSupport {
                                         .description("이름"),
                                 fieldWithPath("email").type(JsonFieldType.STRING)
                                         .description("이메일")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("성공유무"),
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드값"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(JsonFieldType.STRING)
+                                        .description("데이터"))
+                ));
+    }
+
+    @DisplayName("비밀번호 찾기 검증 API")
+    @Test
+    void verifyPassword() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = "test123";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        String response = "비밀번호 검증 성공";
+
+        BDDMockito.when(userService.verifyPassword(Mockito.any(VerifyServicePasswordReq.class)))
+                .thenReturn(response);
+
+        // then
+        mockMvc.perform(
+                        RestDocumentationRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("verify-password",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("loginId").type(JsonFieldType.STRING)
+                                        .description("로그인ID"),
+                                fieldWithPath("username").type(JsonFieldType.STRING)
+                                        .description("이름"),
+                                fieldWithPath("email").type(JsonFieldType.STRING)
+                                        .description("이메일"),
+                                fieldWithPath("authCode").type(JsonFieldType.STRING)
+                                        .description("인증번호")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN)

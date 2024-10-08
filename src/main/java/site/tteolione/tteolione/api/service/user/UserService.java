@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.tteolione.tteolione.api.service.email.EmailService;
-import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
-import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
-import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
-import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.*;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
@@ -116,5 +113,16 @@ public class UserService {
             return "이메일 인증코드 발송에 성공했습니다.";
         }
         return "이메일 인증코드 발송에 실패했습니다.";
+    }
+
+    public String verifyPassword(VerifyServicePasswordReq request) {
+        String codeFoundByEmail = redisUtil.getData("code:" + request.getEmail());
+        boolean isVerify = emailService.verifyEmailCode(request.getEmail(), request.getAuthCode(), codeFoundByEmail);
+        if (!isVerify) {
+            throw new GeneralException(Code.VERIFY_EMAIL_CODE);
+        }
+        userRepository.findByUsernameAndEmailAndLoginId(request.getUsername(), request.getEmail(), request.getLoginId())
+                .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
+        return "비밀번호 이메일 검증 성공";
     }
 }

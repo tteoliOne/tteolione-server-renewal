@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import site.tteolione.tteolione.IntegrationTestSupport;
 import site.tteolione.tteolione.api.service.email.EmailService;
-import site.tteolione.tteolione.api.service.user.request.ChangeNicknameServiceReq;
-import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
-import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
-import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.*;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
@@ -474,6 +471,133 @@ class UserServiceTest extends IntegrationTestSupport {
         GeneralException exp = assertThrows(GeneralException.class, () -> {
             userService.findPassword(request);
         });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
+    }
+
+    @DisplayName("비밀번호 찾기 검증 시 이메일 검증 번호 인증 성공이면 검증 성공 응답 메시지 반환 - 성공")
+    @Test
+    void verifyPassword_Success() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = createCode();
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        VerifyServicePasswordReq request = VerifyServicePasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        redisUtil.setDataExpire("code:" + email, authCode, 60 * 5L);
+        BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(true);
+
+        // when
+        String response = userService.verifyPassword(request);
+        redisUtil.deleteData("code:" + email);
+
+        // then
+        Assertions.assertThat(response).isEqualTo("비밀번호 이메일 검증 성공");
+    }
+
+    @DisplayName("비민번호 찾기 검증 시 이메일 검증 번호가 틀리면 예외처리 - 실패")
+    @Test
+    void verifyPassword_NotEqualsAuthCode() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = createCode();
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        VerifyServicePasswordReq request = VerifyServicePasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        redisUtil.setDataExpire("code:" + email, authCode, 60 * 5L);
+        BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(false);
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.verifyPassword(request);
+        });
+
+        redisUtil.deleteData("code:" + email);
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.VERIFY_EMAIL_CODE);
+    }
+
+    @DisplayName("아이디 찾기 검증 시 이메일 검증 번호는 맞지만 유저네임이 틀리면 예외처리 - 실패")
+    @Test
+    void verifyPassword_NotEquals_Username() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String notMatchUsername = "일치하지않는테스터";
+        String email = "test123@naver.com";
+        String authCode = createCode();
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        VerifyServicePasswordReq request = VerifyServicePasswordReq.builder()
+                .loginId(loginId)
+                .username(notMatchUsername)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        redisUtil.setDataExpire("code:" + email, authCode, 60 * 5L);
+        BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(true);
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.verifyPassword(request);
+        });
+
+        redisUtil.deleteData("code:" + email);
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
+    }
+
+    @DisplayName("아이디 찾기 검증 시 이메일 검증 번호는 맞지만 로그인 ID가 틀리면 예외처리 - 실패")
+    @Test
+    void verifyPassword_NotEquals_LoginId() {
+        // given
+        String loginId = "test123";
+        String notMatchLoginId = "tttt123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = createCode();
+        User saveUser = createUserWithLoginIdAndUsernameAndEmailAndLoginType(loginId, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        VerifyServicePasswordReq request = VerifyServicePasswordReq.builder()
+                .loginId(notMatchLoginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        redisUtil.setDataExpire("code:" + email, authCode, 60 * 5L);
+        BDDMockito.when(emailService.verifyEmailCode(email, authCode, authCode)).thenReturn(true);
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.verifyPassword(request);
+        });
+
+        redisUtil.deleteData("code:" + email);
 
         // then
         Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
