@@ -16,6 +16,7 @@ import site.tteolione.tteolione.api.controller.user.request.*;
 import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
 import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
+import site.tteolione.tteolione.api.service.user.request.VerifyServicePasswordReq;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
@@ -651,5 +652,228 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("이메일 형식이 맞지 않습니다."));
+    }
+
+    @DisplayName("비밀번호 찾기 검증 - 성공")
+    @Test
+    @WithMockCustomAccount
+    void verifyPassword_Success() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = "test123";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        String response = "비밀번호 검증 성공";
+
+        BDDMockito.when(userService.verifyPassword(Mockito.any(VerifyServicePasswordReq.class)))
+                .thenReturn(response);
+
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.OK.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Ok"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(response));
+    }
+
+    @DisplayName("비밀번호 찾기 검증 시 유저네임 빈문자열 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void verifyPassword_Failure_NotBlank_Username() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "";
+        String email = "test123@naver.com";
+        String authCode = "test123";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("회원님의 이름을 적어주세요."));
+    }
+
+    @DisplayName("비밀번호 찾기 검증 시 인증번호 7글자가 아닐때 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void verifyPassword_Failure_NotLengthSeven_Username() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = "test1234";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("인증코드는 7자리입니다."));
+    }
+
+    @DisplayName("아이디 찾기 검증 시 이메일 형식이 맞지 않을때 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void verifyPassword_Failure_RegexEmail() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123";
+        String authCode = "test123";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("이메일 형식이 맞지 않습니다."));
+    }
+
+    @DisplayName("비밀번호 찾기 검증 시 로그인Id가 6글자 미만일때 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void verifyPassword_Failure_Less_Than_6Length_LoginId() throws Exception {
+        // given
+        String loginId = "test1";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = "test123";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("id는 소문자 하나이상있어야하고, 6자~20자여야합니다."));
+    }
+
+    @DisplayName("비밀번호 찾기 검증 시 로그인Id가 21글자 초과일때 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void verifyPassword_Failure_Exceeding_20Length_LoginId() throws Exception {
+        // given
+        String loginId = "test12345678910111213";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = "test123";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("id는 소문자 하나이상있어야하고, 6자~20자여야합니다."));
+    }
+
+    @DisplayName("비밀번호 찾기 검증 시 로그인Id가 소문자가 하나도 없을때 예외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void verifyPassword_Failure_NotExist_Low_Character() throws Exception {
+        // given
+        String loginId = "123456";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String authCode = "test123";
+
+        VerifyPasswordReq request = VerifyPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .authCode(authCode)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v2/users/verify/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("id는 소문자 하나이상있어야하고, 6자~20자여야합니다."));
     }
 }

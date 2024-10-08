@@ -77,4 +77,9 @@ public class UserController {
     public BaseResponse<String> findPassword(@Valid @RequestBody FindPasswordReq request) throws MessagingException {
         return BaseResponse.of(userService.findPassword(request.toServiceRequest()));
     }
+
+    @PostMapping("/verify/password")
+    public BaseResponse<String> verifyPassword(@Valid @RequestBody VerifyPasswordReq request) throws MessagingException {
+        return BaseResponse.of(userService.verifyPassword(request.toServiceRequest()));
+    }
 }
