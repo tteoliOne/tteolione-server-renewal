@@ -16,8 +16,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import site.tteolione.tteolione.api.service.user.UserService;
+import site.tteolione.tteolione.common.config.exception.Code;
+import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.domain.user.User;
+import site.tteolione.tteolione.domain.user.UserRepository;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private final TokenProvider tokenProvider;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,7 +41,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         try {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                User findUser = userService.findByEmail(tokenProvider.getUid(jwt));
+                User findUser = userRepository.findByEmail(tokenProvider.getUid(jwt))
+                        .orElseThrow(() -> new GeneralException(Code.NOT_EXISTS_USER));
 
                 SecurityUserDto userDto = SecurityUserDto.builder()
                         .userId(findUser.getUserId())
