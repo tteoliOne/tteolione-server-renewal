@@ -11,11 +11,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.common.config.jwt.JwtAccessDeniedHandler;
 import site.tteolione.tteolione.common.config.jwt.JwtAuthenticationEntryPoint;
 import site.tteolione.tteolione.common.config.jwt.JwtFilter;
 import site.tteolione.tteolione.common.config.jwt.TokenProvider;
+import site.tteolione.tteolione.domain.user.UserRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -25,7 +25,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -78,7 +78,7 @@ public class SecurityConfig {
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                                 .accessDeniedHandler(jwtAccessDeniedHandler));
         http
-                .addFilterBefore(new JwtFilter(tokenProvider, userService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(tokenProvider, userRepository), UsernamePasswordAuthenticationFilter.class);
 
         // 등등의 설정들 ...
 
