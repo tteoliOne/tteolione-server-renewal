@@ -2,6 +2,7 @@ package site.tteolione.tteolione.api.service.user;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.tteolione.tteolione.api.service.email.EmailService;
@@ -22,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final RedisUtil redisUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public boolean duplicateLoginId(String loginId) {
         if (userRepository.existsByLoginId(loginId)) {
@@ -124,5 +126,26 @@ public class UserService {
         userRepository.findByUsernameAndEmailAndLoginId(request.getUsername(), request.getEmail(), request.getLoginId())
                 .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
         return "비밀번호 이메일 검증 성공";
+    }
+
+    @Transactional
+    public String resetPassword(ResetServicePasswordReq request) {
+        User findUser = userRepository.findByUsernameAndEmailAndLoginId(request.getUsername(), request.getEmail(), request.getLoginId())
+                .orElseThrow(() -> new GeneralException(Code.NOT_FOUND_USER_INFO));
+
+        switch (findUser.getLoginType()) {
+            case eKakao -> throw new GeneralException(Code.FOUND_KAKAO_USER);
+            case eGoogle -> throw new GeneralException(Code.FOUND_GOOGLE_USER);
+            case eNaver -> throw new GeneralException(Code.FOUND_NAVER_USER);
+            case eApple -> throw new GeneralException(Code.FOUND_APPLE_USER);
+        }
+
+        if (passwordEncoder.matches(request.getPassword(), findUser.getPassword())) {
+            throw new GeneralException(Code.MATCH_EXIST_PW);
+        }
+
+        findUser.changePassword(passwordEncoder.encode(request.getPassword()));
+
+        return "비밀번호 재설정 성공";
     }
 }
