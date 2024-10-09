@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,6 +26,7 @@ import site.tteolione.tteolione.api.service.user.AuthService;
 import site.tteolione.tteolione.api.service.user.OAuth2Service;
 import site.tteolione.tteolione.api.service.user.UserService;
 import site.tteolione.tteolione.common.config.redis.RedisUtil;
+import site.tteolione.tteolione.domain.user.UserRepository;
 
 @ActiveProfiles({"test", "private"})
 @WebMvcTest(controllers = {
@@ -59,6 +61,12 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected OAuth2Service oAuth2Service;
+
+    @MockBean
+    protected UserRepository userRepository;
+
+    @MockBean
+    protected PasswordEncoder passwordEncoder;
 
     /**
      * 403 forbidden 문제(csrf)

@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v2/products/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PATCH ,"/api/v2/users/nickname").hasRole("USER")
+                        .requestMatchers(HttpMethod.PATCH,"/api/v2/users/reset/password").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated());
 

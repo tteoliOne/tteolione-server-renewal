@@ -69,6 +69,10 @@ public class User extends BaseEntity implements UserDetails {
         this.nickname = nickname;
     }
 
+    public void changePassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(() -> userRole.name());

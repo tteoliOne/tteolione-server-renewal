@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import site.tteolione.tteolione.IntegrationTestSupport;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.*;
@@ -39,6 +40,9 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @AfterEach
     void tearDown() {
@@ -603,6 +607,64 @@ class UserServiceTest extends IntegrationTestSupport {
         Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_FOUND_USER_INFO);
     }
 
+    @DisplayName("비밀번호 찾기 검증 후 비밀번호 재설정한 뒤 응답 메시지 반환 - 성공")
+    @Test
+    void resetPassword_Success() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String password = "test123";
+        String newPassword = "test1234";
+        User saveUser = createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(loginId, password, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        ResetServicePasswordReq request = ResetServicePasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+
+        // when
+        String response = userService.resetPassword(request);
+        User changePasswordUser = userService.findByEmail(email);
+
+        // then
+        Assertions.assertThat(response).isEqualTo("비밀번호 재설정 성공");
+        Assertions.assertThat(passwordEncoder.matches(newPassword, changePasswordUser.getPassword())).isTrue();
+    }
+
+    @DisplayName("비밀번호 찾기 검증 후 비밀번호 재설정할 때 기존의 것과 일치할 때 예외처리 - 실패")
+    @Test
+    void resetPassword_Equals_Origin_Password() {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String password = "test123";
+        String newPassword = "test123";
+        User saveUser = createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(loginId, password, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        ResetServicePasswordReq request = ResetServicePasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.resetPassword(request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.MATCH_EXIST_PW);
+    }
+
     private User createUser(String loginId, String email) {
         return User.builder()
                 .loginId(loginId)
@@ -648,6 +710,16 @@ class UserServiceTest extends IntegrationTestSupport {
         authCode += numIndex;
 
         return authCode;
+    }
+
+    private User createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(String loginId, String password, String username, String email, ELoginType loginType) {
+        return User.builder()
+                .loginId(loginId)
+                .password(passwordEncoder.encode(password))
+                .username(username)
+                .email(email)
+                .loginType(loginType)
+                .build();
     }
 
 }

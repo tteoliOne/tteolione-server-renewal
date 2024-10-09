@@ -76,3 +76,14 @@ include::{snippets}/verify-password/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/verify-password/http-response.adoc[]
 include::{snippets}/verify-password/response-fields.adoc[]
+
+[[reset-password]]
+=== 비밀번호 재설정 API
+
+==== HTTP Request
+include::{snippets}/reset-password/http-request.adoc[]
+include::{snippets}/reset-password/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/reset-password/http-response.adoc[]
+include::{snippets}/reset-password/response-fields.adoc[]
