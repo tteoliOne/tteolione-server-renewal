@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -13,15 +14,16 @@ import site.tteolione.tteolione.ControllerTestSupport;
 import site.tteolione.tteolione.GenerateMockToken;
 import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.controller.user.request.*;
-import site.tteolione.tteolione.api.service.user.request.FindServiceLoginIdReq;
-import site.tteolione.tteolione.api.service.user.request.FindServicePasswordReq;
-import site.tteolione.tteolione.api.service.user.request.VerifyServiceLoginIdReq;
-import site.tteolione.tteolione.api.service.user.request.VerifyServicePasswordReq;
+import site.tteolione.tteolione.api.service.user.request.*;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
 import site.tteolione.tteolione.common.config.exception.Code;
 import site.tteolione.tteolione.common.config.exception.GeneralException;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.common.util.SecurityUtils;
+import site.tteolione.tteolione.domain.user.User;
+import site.tteolione.tteolione.domain.user.constants.ELoginType;
+
+import java.util.Optional;
 
 //참고문헌 https://velog.io/@jmjmjmz732002/Springboot-Junit5-%EC%BB%A8%ED%8A%B8%EB%A1%A4%EB%9F%AC-%ED%85%8C%EC%8A%A4%ED%8A%B8-401-%EC%97%90%EB%9F%AC%EB%A5%BC-%EB%A7%88%EC%A3%BC%EC%B3%A4%EB%8B%A4
 class UserControllerTest extends ControllerTestSupport {
@@ -875,5 +877,204 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("id는 소문자 하나이상있어야하고, 6자~20자여야합니다."));
+    }
+
+    @DisplayName("비밀번호 재설정 - 성공")
+    @Test
+    @WithMockCustomAccount
+    void resetPassword_Success() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String password = "test123@";
+        String newPassword = "test123!";
+
+        ResetPasswordReq request = ResetPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+        User mockUser = Mockito.mock(User.class); // Mock User 객체 생성
+        BDDMockito.when(userRepository.findByUsernameAndEmailAndLoginId(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(mockUser)); // Mock 객체 반환
+        BDDMockito.when(mockUser.getLoginType()).thenReturn(ELoginType.eApp);
+        BDDMockito.when(passwordEncoder.matches(request.getPassword(), mockUser.getPassword())).thenReturn(false);
+
+        //when
+        String response = "비밀번호 검증 성공";
+
+        BDDMockito.when(userService.resetPassword(Mockito.any(ResetServicePasswordReq.class)))
+                .thenReturn(response);
+
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/v2/users/reset/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.OK.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Ok"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(response));
+    }
+
+    @DisplayName("비밀번호 재설정 시 비밀번호 유효성 검사에서 특수문자가 하나도 없을 때 에외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void resetPassword_Failure_NotExist_Special_Character() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String newPassword = "test123";
+
+        ResetPasswordReq request = ResetPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/v2/users/reset/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("8~16 characters consisting of letters(A-Z, a-z), numbers, or special characters."));
+    }
+
+    @DisplayName("비밀번호 재설정 시 비밀번호 유효성 검사에서 숫자가 하나도 없을 때 에외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void resetPassword_Failure_NotExist_Number() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String newPassword = "test!!!!";
+
+        ResetPasswordReq request = ResetPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/v2/users/reset/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("8~16 characters consisting of letters(A-Z, a-z), numbers, or special characters."));
+    }
+
+    @DisplayName("비밀번호 재설정 시 비밀번호 유효성 검사에서 소문자가 하나도 없을 때 에외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void resetPassword_Failure_NotExist_Low_Character() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String newPassword = "T123!!!!";
+
+        ResetPasswordReq request = ResetPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/v2/users/reset/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("8~16 characters consisting of letters(A-Z, a-z), numbers, or special characters."));
+    }
+
+    @DisplayName("비밀번호 재설정 시 비밀번호 유효성 검사에서 8글자 미만일 때 에외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void resetPassword_Failure_Less_Than_8Length_Password() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String newPassword = "test12!";
+
+        ResetPasswordReq request = ResetPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/v2/users/reset/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("8~16 characters consisting of letters(A-Z, a-z), numbers, or special characters."));
+    }
+
+    @DisplayName("비밀번호 재설정 시 비밀번호 유효성 검사에서 20글자 초과일 때 에외처리 - 실패")
+    @Test
+    @WithMockCustomAccount
+    void resetPassword_Failure_Exceeding_20Length_Password() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String newPassword = "test1234567891011121!";
+
+        ResetPasswordReq request = ResetPasswordReq.builder()
+                .loginId(loginId)
+                .username(username)
+                .email(email)
+                .password(newPassword)
+                .build();
+
+        //when
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/v2/users/reset/password")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("8~16 characters consisting of letters(A-Z, a-z), numbers, or special characters."));
     }
 }

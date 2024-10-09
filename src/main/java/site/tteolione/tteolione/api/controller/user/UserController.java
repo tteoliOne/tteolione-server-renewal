@@ -85,4 +85,9 @@ public class UserController {
     public BaseResponse<String> verifyPassword(@Valid @RequestBody VerifyPasswordReq request) {
         return BaseResponse.of(userService.verifyPassword(request.toServiceRequest()));
     }
+
+    @PatchMapping("/reset/password")
+    public BaseResponse<String> resetPassword(@Valid @RequestBody ResetPasswordReq request) {
+        return BaseResponse.of(userService.resetPassword(request.toServiceRequest()));
+    }
 }
