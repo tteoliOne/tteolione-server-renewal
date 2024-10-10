@@ -86,6 +86,9 @@ public class UserController {
         return BaseResponse.of(userService.verifyPassword(request.toServiceRequest()));
     }
 
+    /**
+     * 비밀번호 재설정
+     */
     @PatchMapping("/reset/password")
     public BaseResponse<String> resetPassword(@Valid @RequestBody ResetPasswordReq request) {
         return BaseResponse.of(userService.resetPassword(request.toServiceRequest()));
