@@ -148,4 +148,33 @@ public class UserService {
 
         return "비밀번호 재설정 성공";
     }
+
+    @Transactional
+    public String changePassword(SecurityUserDto userDto, ChangeServicePasswordReq request) {
+        Long userId = userDto.getUserId();
+        User user = this.findById(userId);
+
+        switch (user.getLoginType()) {
+            case eKakao -> throw new GeneralException(Code.FOUND_KAKAO_USER);
+            case eGoogle -> throw new GeneralException(Code.FOUND_GOOGLE_USER);
+            case eNaver -> throw new GeneralException(Code.FOUND_NAVER_USER);
+            case eApple -> throw new GeneralException(Code.FOUND_APPLE_USER);
+        }
+
+        if (request.getPassword().equals(request.getNewPassword())) {
+            throw new GeneralException(Code.EQUALS_PASSWORD_NEW_PASSWORD);
+        }
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new GeneralException(Code.NOT_MATCH_PW);
+        }
+
+        if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
+            throw new GeneralException(Code.NOT_MATCH_NEW_PW);
+        }
+
+        user.changePassword(passwordEncoder.encode(request.getNewPassword()));
+
+        return "비밀번호 재설정 성공";
+    }
 }

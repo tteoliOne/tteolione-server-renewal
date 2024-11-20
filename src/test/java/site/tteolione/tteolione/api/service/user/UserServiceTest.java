@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import site.tteolione.tteolione.IntegrationTestSupport;
+import site.tteolione.tteolione.WithMockCustomAccount;
 import site.tteolione.tteolione.api.service.email.EmailService;
 import site.tteolione.tteolione.api.service.user.request.*;
 import site.tteolione.tteolione.api.service.user.response.VerifyLoginIdRes;
@@ -663,6 +664,181 @@ class UserServiceTest extends IntegrationTestSupport {
 
         // then
         Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.MATCH_EXIST_PW);
+    }
+
+    @DisplayName("로그인 상태에서 비밀번호 재설정한 뒤 응답 메시지 반환 - 성공")
+    @Test
+    void changePassword_Success() {
+        // given
+        String loginId = "test12";
+        String password = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        String newPassword = "test1234";
+        String newPasswordConfirm = "test1234";
+        User saveUser = createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(loginId, password, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(saveUser.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeServicePasswordReq request = ChangeServicePasswordReq.builder()
+                .password(password)
+                .newPassword(newPassword)
+                .newPasswordConfirm(newPasswordConfirm)
+                .build();
+
+
+        // when
+        String response = userService.changePassword(userDto, request);
+        User changePasswordUser = userService.findByEmail(email);
+
+        // then
+        Assertions.assertThat(response).isEqualTo("비밀번호 재설정 성공");
+        Assertions.assertThat(passwordEncoder.matches(newPassword, changePasswordUser.getPassword())).isTrue();
+    }
+
+    @DisplayName("로그인 상태에서 비밀번호 재설정할때 앱로그인아닐 경우 예외처리 - 실패")
+    @Test
+    void changePassword_NotEquals_App() {
+        // given
+        String loginId = "test12";
+        String password = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        String newPassword = "test1234";
+        String newPasswordConfirm = "test1234";
+        User saveUser = createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(loginId, password, username, email, ELoginType.eKakao);
+        userRepository.save(saveUser);
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(saveUser.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeServicePasswordReq request = ChangeServicePasswordReq.builder()
+                .password(password)
+                .newPassword(newPassword)
+                .newPasswordConfirm(newPasswordConfirm)
+                .build();
+
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.changePassword(userDto, request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.FOUND_KAKAO_USER);
+    }
+
+    @DisplayName("로그인 상태에서 비밀번호 재설정시 비밀번호와 새로운 비밀번호가 같을 경우 예외처리 - 실패")
+    @Test
+    void changePassword_EQUALS_PASSWORD_NEW_PASSWORD() {
+        // given
+        String loginId = "test12";
+        String password = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        String newPasswordConfirm = "test1234";
+        User saveUser = createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(loginId, password, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(saveUser.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeServicePasswordReq request = ChangeServicePasswordReq.builder()
+                .password(password)
+                .newPassword(password)
+                .newPasswordConfirm(newPasswordConfirm)
+                .build();
+
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.changePassword(userDto, request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.EQUALS_PASSWORD_NEW_PASSWORD);
+    }
+
+    @DisplayName("로그인 상태에서 비밀번호 재설정시 기존 비밀번호와 일치하지 않을 경우 예외처리 - 실패")
+    @Test
+    void changePassword_NOT_MATCH_PW() {
+        // given
+        String loginId = "test12";
+        String originPassword = "test1234";
+        String requestPassword = "test12345";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        String newPassword = "test1234";
+        String newPasswordConfirm = "test1234";
+        User saveUser = createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(loginId, originPassword, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(saveUser.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeServicePasswordReq request = ChangeServicePasswordReq.builder()
+                .password(requestPassword)
+                .newPassword(newPassword)
+                .newPasswordConfirm(newPasswordConfirm)
+                .build();
+
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.changePassword(userDto, request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_MATCH_PW);
+    }
+
+    @DisplayName("로그인 상태에서 비밀번호 재설정시 새로운 비밀번호와 새로운 비밀번호 재확인이 틀릴 경우 예외처리 - 실패")
+    @Test
+    void changePassword_NOT_MATCH_NEW_PW() {
+        // given
+        String loginId = "test12";
+        String password = "test1234";
+        String username = "테스터";
+        String email = "test123@naver.com";
+
+        String newPassword = "test12345";
+        String newPasswordConfirm = "test1234";
+        User saveUser = createUserWithLoginIdAndPasswordAndUsernameAndEmailAndLoginType(loginId, password, username, email, ELoginType.eApp);
+        userRepository.save(saveUser);
+
+        SecurityUserDto userDto = SecurityUserDto.builder()
+                .userId(saveUser.getUserId())
+                .userRole(EAuthority.ROLE_USER)
+                .build();
+
+        ChangeServicePasswordReq request = ChangeServicePasswordReq.builder()
+                .password(password)
+                .newPassword(newPassword)
+                .newPasswordConfirm(newPasswordConfirm)
+                .build();
+
+
+        // when
+        GeneralException exp = assertThrows(GeneralException.class, () -> {
+            userService.changePassword(userDto, request);
+        });
+
+        // then
+        Assertions.assertThat(exp.getErrorCode()).isEqualTo(Code.NOT_MATCH_NEW_PW);
     }
 
     private User createUser(String loginId, String email) {
