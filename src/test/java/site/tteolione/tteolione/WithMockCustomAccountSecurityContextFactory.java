@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 import site.tteolione.tteolione.common.util.SecurityUserDto;
 import site.tteolione.tteolione.domain.user.constants.EAuthority;
+import site.tteolione.tteolione.domain.user.constants.ELoginType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +24,13 @@ public class WithMockCustomAccountSecurityContextFactory implements WithSecurity
         attributes.put("loginId", customOAuth2Account.loginId());
         attributes.put("username", customOAuth2Account.username());
         attributes.put("email", customOAuth2Account.email());
+        attributes.put("loginType", customOAuth2Account.loginType());
 
         final SecurityUserDto principal = SecurityUserDto.builder()
                 .userId(1L)
                 .email(customOAuth2Account.email())
                 .userRole(EAuthority.ROLE_USER)
+                .loginType((ELoginType) attributes.get("loginType"))
                 .build();
 
         final Authentication token = new UsernamePasswordAuthenticationToken(principal, "", List.of(new SimpleGrantedAuthority(EAuthority.ROLE_USER.name())));

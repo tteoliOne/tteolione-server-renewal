@@ -1077,4 +1077,45 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.VALIDATION_ERROR.getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("8~16 characters consisting of letters(A-Z, a-z), numbers, or special characters."));
     }
+
+    @DisplayName("비밀번호 재설정 - 성공")
+    @Test
+    @WithMockCustomAccount
+    void changePassword_Success() throws Exception {
+        // given
+        String loginId = "test123";
+        String username = "테스터";
+        String email = "test123@naver.com";
+        String password = "test123@";
+        String newPassword = "test123!";
+        String newPasswordConfirm = "test123!";
+
+        ChangePasswordReq request = ChangePasswordReq.builder()
+                .password(password)
+                .newPassword(newPassword)
+                .newPasswordConfirm(newPasswordConfirm)
+                .build();
+
+        SecurityUserDto userDto = SecurityUtils.getUser();
+
+        //when
+        String response = "비밀번호 재설정 성공";
+
+        BDDMockito.when(userService.changePassword(Mockito.any(SecurityUserDto.class), Mockito.any(ChangeServicePasswordReq.class)))
+                .thenReturn(response);
+
+        //then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/v2/users/change/password")
+                                .headers(GenerateMockToken.getToken())
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(Code.OK.getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Ok"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("비밀번호 재설정 성공"));
+    }
 }

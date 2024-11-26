@@ -87,3 +87,15 @@ include::{snippets}/reset-password/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/reset-password/http-response.adoc[]
 include::{snippets}/reset-password/response-fields.adoc[]
+
+[[change-password]]
+=== 비밀번호 변경 API
+
+==== HTTP Request
+include::{snippets}/change-password/http-request.adoc[]
+include::{snippets}/change-password/request-headers.adoc[]
+include::{snippets}/change-password/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/change-password/http-response.adoc[]
+include::{snippets}/change-password/response-fields.adoc[]

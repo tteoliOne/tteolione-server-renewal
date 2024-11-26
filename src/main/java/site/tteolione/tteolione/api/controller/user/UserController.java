@@ -71,19 +71,19 @@ public class UserController {
     }
 
     /**
-     * 비밀번호 찾기
-     */
-    @PostMapping("/find/password")
-    public BaseResponse<String> findPassword(@Valid @RequestBody FindPasswordReq request) throws MessagingException {
-        return BaseResponse.of(userService.findPassword(request.toServiceRequest()));
-    }
-
-    /**
      * 비밀번호 찾기 검증
      */
     @PostMapping("/verify/password")
     public BaseResponse<String> verifyPassword(@Valid @RequestBody VerifyPasswordReq request) {
         return BaseResponse.of(userService.verifyPassword(request.toServiceRequest()));
+    }
+
+    /**
+     * 비밀번호 찾기
+     */
+    @PostMapping("/find/password")
+    public BaseResponse<String> findPassword(@Valid @RequestBody FindPasswordReq request) throws MessagingException {
+        return BaseResponse.of(userService.findPassword(request.toServiceRequest()));
     }
 
     /**
@@ -93,4 +93,16 @@ public class UserController {
     public BaseResponse<String> resetPassword(@Valid @RequestBody ResetPasswordReq request) {
         return BaseResponse.of(userService.resetPassword(request.toServiceRequest()));
     }
+
+    /**
+     * 비밀번호 변경
+     */
+    @PatchMapping("/change/password")
+    public BaseResponse<String> changePassword(
+            @CurrentUser SecurityUserDto userDto,
+            @Valid @RequestBody ChangePasswordReq request
+    ) {
+        return BaseResponse.of(userService.changePassword(userDto, request.toServiceRequest()));
+    }
+
 }

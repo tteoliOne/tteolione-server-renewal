@@ -421,4 +421,59 @@ public class UserControllerDocsTest extends RestDocsSupport {
                                         .description("데이터"))
                 ));
     }
+
+    @DisplayName("비밀번호 변경 API")
+    @Test
+    void changePassword() throws Exception {
+        // given
+        String password = "test123@";
+        String newPassword = "test123!";
+        String newPasswordConfirm = "test123!";
+
+        ChangePasswordReq request = ChangePasswordReq.builder()
+                .password(password)
+                .newPassword(newPassword)
+                .newPasswordConfirm(newPasswordConfirm)
+                .build();
+
+        //when
+        String response = "비밀번호 재설정 성공";
+
+        BDDMockito.when(userService.changePassword(Mockito.any(SecurityUserDto.class), Mockito.any(ChangeServicePasswordReq.class)))
+                .thenReturn(response);
+
+        // then
+        mockMvc.perform(
+                        RestDocumentationRequestBuilders.patch("/api/v2/users/change/password")
+                                .headers(GenerateMockToken.getToken())
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("change-password",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("accessToken")
+                        ),
+                        requestFields(
+                                fieldWithPath("password").type(JsonFieldType.STRING)
+                                        .description("기존 비밀번호"),
+                                fieldWithPath("newPassword").type(JsonFieldType.STRING)
+                                        .description("새로운 비밀번호"),
+                                fieldWithPath("newPasswordConfirm").type(JsonFieldType.STRING)
+                                        .description("새로운 비밀번호 확인")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("성공유무"),
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드값"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(JsonFieldType.STRING)
+                                        .description("데이터"))
+                ));
+    }
 }
